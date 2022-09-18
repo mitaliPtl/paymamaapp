@@ -1,0 +1,359 @@
+.blank-space {
+    padding-top: 100px
+}
+
+ul.mainu-float li {
+    float: right;
+}
+
+header {
+    /* height: 180vh;
+    min-height: 400px;
+    background-size: cover;
+    background-image: url('https://images.unsplash.com/photo-1470434151738-dc5f4474c239?dpr=1&auto=format&crop=entropy&fit=crop&w=1500&h=1000&q=80&cs=tinysrgb'); */
+}
+
+nav {
+    padding-top: 25px;
+}
+
+a.top-nav,
+.nav-link {
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: white;
+    font-weight: 600;
+}
+
+.btn-login {
+    background: white;
+    font-weight: 700;
+    color: #403A79;
+}
+
+.banner-mobile {
+    position: absolute;
+    top: 30%;
+    right: 3%;
+    /* margin-top: 0px;
+    margin-left: 0px; */
+    /* transform: translate(190%, 15%); */
+}
+
+.banner-des {
+    position: absolute;
+    top: 20%;
+}
+
+.header-cover-img {
+    position: relative;
+    background-size: cover;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+}
+
+.title-one {
+    position: absolute;
+    /* top: 255px; */
+    top: 125px;
+    left: 180px;
+    font-size: xxx-large;
+    color: white;
+    font-weight: 300;
+    /* margin-top: 0px;
+    margin-left: 0px;
+    transform: translate(50%, 50%); */
+}
+
+.title-two {
+    position: absolute;
+    /* top: 295px; */
+    top: 165px;
+    left: 180px;
+    font-size: xxx-large;
+    font-weight: 900;
+    color: white;
+    font-size: 75px;
+}
+
+.des-one {
+    position: absolute;
+    font-size: 20px;
+    /* top: 405px; */
+    top: 275px;
+    left: 180px;
+    color: white;
+}
+
+.des-two {
+    position: absolute;
+    font-size: 25px;
+    /* top: 475px; */
+    top: 345px;
+    left: 180px;
+    color: white;
+}
+
+span.serivce_header {
+    color: #DE182B;
+    text-align: center;
+    font-weight: 900;
+    font-size: 18px;
+}
+
+.service_item {
+    align-items: center;
+    text-align: center;
+}
+
+.service_desc {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.about-section {
+    position: relative;
+}
+
+.about-cover-img {
+    position: relative;
+    background-size: cover;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+}
+
+.about-banner {
+    position: relative;
+    background-size: cover;
+}
+
+.about-para {
+    position: absolute;
+    font-size: 19px;
+    top: 195%;
+    left: 45%;
+    color: white;
+    width: 50%;
+}
+
+.about-para_t {
+    position: absolute;
+    font-size: 21px;
+    top: 7%;
+    left: 45%;
+    color: white;
+}
+
+.about-icon {
+    position: absolute;
+    top: 195%;
+    left: 3%;
+}
+
+.about-icon_t {
+    position: absolute;
+    top: 12%;
+    left: 6%;
+}
+
+.about-para-sec {
+    position: absolute;
+    font-size: 21px;
+    top: 65%;
+    left: 10%;
+    color: #333333;
+    width: 45%;
+}
+
+.about-person {
+    position: absolute;
+    top: 54%;
+    right: 14%;
+}
+
+.service-card {
+    height: 250px;
+}
+
+.middle-items {
+    padding-top: 15%;
+}
+
+h5.serivce_list {
+    color: #DE182B;
+    text-align: center;
+    font-weight: 900;
+    font-size: 18px;
+}
+
+div.our-serice h2 {
+    text-align: center;
+    font-weight: 700;
+}
+
+div.our-serice p {
+    text-align: center;
+    font-size: 165%;
+    color: #333333
+}
+
+
+/* .multicolortext {
+    background-image: linear-gradient(to right, #13217D, #EC1C24);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    color: linear-gradient(to right, #13217D, #EC1C24) repeat scroll 0 0;
+} */
+
+
+/* .multicolortext {
+    -webkit-text-fill-color: transparent;
+    font-size: 72px;
+    background: -webkit-linear-gradient(#eee, #333);
+    background-clip: text;
+} */
+
+
+/* .multicolortext {
+    background-image: linear-gradient(to right, red 50%, brown 50%);
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+} */
+
+.view-more {
+    padding-top: 10px;
+}
+
+.view-more-btn {
+    height: 65px;
+    width: 215px;
+    font-weight: 700;
+}
+
+.down-cover-img {
+    position: relative;
+    background-size: cover;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+}
+
+.download-section {
+    position: relative;
+}
+
+.download-mob {
+    position: absolute;
+    top: 0%;
+    left: 18%;
+}
+
+.download_desc {
+    position: absolute;
+    top: 17%;
+    left: 44%;
+}
+
+p.down-head {
+    font-size: 255%;
+    font-weight: 800;
+    color: white;
+}
+
+p.down_des {
+    color: white;
+    font-size: 18px;
+}
+
+div.down_points {
+    position: absolute;
+    top: 56%;
+    left: 45%;
+    color: white;
+    font-size: 18px;
+}
+
+.point-img {
+    padding-right: 0px;
+}
+
+.point-text {
+    padding-left: 0px;
+}
+
+.google-play {
+    position: absolute;
+    top: 77%;
+    left: 45%;
+}
+
+.footer-section {}
+
+.footer-background {
+    /* background-color: red; */
+    /* For browsers that do not support gradients */
+    background-image: linear-gradient(to right, #251C63, #DC182C);
+}
+
+.footer-icon {
+    position: absolute;
+    top: 25%;
+    left: 20%;
+}
+
+.footer-row {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+
+/* .footer-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+} */
+
+.list-menu {
+    list-style-type: none;
+    padding-left: 0px;
+}
+
+.list-menu li a {
+    padding: 10px;
+    color: white;
+}
+
+.footer-heading {
+    color: white;
+}
+
+.add-list {
+    list-style-type: none;
+}
+
+.add-icons {
+    color: white;
+}
+
+
+/* terms & Conditions */
+
+.terms_conditions {
+    text-align: justify;
+}
+
+
+/* home page */
+
+.about_home {
+    position: relative;
+}

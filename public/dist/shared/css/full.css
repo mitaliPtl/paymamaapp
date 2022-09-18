@@ -1,0 +1,157 @@
+/* Style for toggle button */
+
+.toggle.ios, .toggle-on.ios, .toggle-off.ios {
+    border-radius: 20px;
+}
+
+.toggle.ios .toggle-handle {
+    border-radius: 20px;
+}
+
+.slow .toggle-group {
+    transition: left 0.7s;
+    -webkit-transition: left 0.7s;
+}
+
+.fast .toggle-group {
+    transition: left 0.1s;
+    -webkit-transition: left 0.1s;
+}
+
+.quick .toggle-group {
+    transition: none;
+    -webkit-transition: none;
+}
+
+.table>tbody>tr>td {
+    vertical-align: middle;
+}
+
+.table>thead>tr>th {
+    vertical-align: middle;
+    background-color: #e9ecef;
+}
+
+.pb-10 {
+    padding-bottom: 10px;
+}
+
+.hide-this {
+    display: none;
+}
+
+.text-blue {
+    color: blue;
+}
+
+.label {
+    font-weight: 500;
+    ;
+}
+
+.font-sm {
+    font-size: smaller;
+}
+
+.radio-li {
+    padding-left: 0px;
+    margin-bottom: 0px;
+}
+
+.radio-li li {
+    display: inline;
+}
+
+.text-success {
+    color: #32CD32;
+}
+
+.bg-success{
+    background-color: #32CD32;
+}
+
+/* Profile Section Css */
+
+.pf-name {
+    color: white;
+}
+
+.pf-subtitle {
+    color: white;
+    font-size: 10px;
+}
+
+.pf-sub-info {
+    color: white;
+    font-size: 10px;
+}
+
+.profile-image {
+    border-radius: 50px;
+    width: 40px;
+    /* margin-top: -45px; */
+}
+
+.prf-anc {
+    width: 90%;
+    margin-left: 15px;
+    background: white;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    ;
+}
+
+.menu-board {
+    background-color: #e5e4ec;
+    border: 1px solid lightgrey!important;
+}
+
+.menu-head {
+    background-color: #911a42;
+}
+
+.last-menu-head {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+/* Profile section css ends */
+
+#fileUploadModal .modal-dialog{
+    z-index: 1041 !important;
+}
+
+
+/* Remove Input Type number arrow */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.brd-b-success{
+    border-bottom: 1px solid #32CD32;
+}
+
+.brd-b-danger{
+    border-bottom: 1px solid red;
+}
+
+.kyc-status-dd{
+    font-size:10px;
+}
+
+.hide-width{
+    width: 0px;
+    border: 0px;
+}
+
+.info-button{
+    pointer-events: none;
+}

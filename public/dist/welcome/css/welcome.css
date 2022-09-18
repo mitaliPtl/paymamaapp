@@ -1,0 +1,62 @@
+.phone-bg-img {
+    width: 100%;
+}
+
+.navbar-brand {
+    margin: 10px;
+    margin-left: 8%;
+}
+
+.main-anc-ul .nav-link {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.main-navbar {
+    border-bottom: 0.1em solid #ffffff26;
+    position: absolute;
+    width: 100%;
+}
+
+.sign-in-btn{
+    border-radius: 10px;
+    color: black!important;
+    font-size: 15px;
+    background-color: white!important;
+}
+
+.phone-bg .recharge-from{
+    position: absolute;
+    margin: 20%;
+}
+
+@media (max-width: 1024px) {
+    .main-anc-ul .nav-link {
+        font-size: 12px;
+        font-weight: 500;
+    }
+}
+
+@media (max-width: 992px) {
+    .phone-bg-img{
+        margin-top:40px;
+    }
+    .recharge-from{
+        display: none;
+    }
+}
+
+@media (max-width: 450px) {
+    .phone-bg-img{
+        margin-top:10%;
+    }
+    .logo-img{
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 380px) {
+    .phone-bg-img{
+        margin-top:15%;
+    }
+}

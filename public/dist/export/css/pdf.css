@@ -1,0 +1,18 @@
+/* table {
+    max-width: 2480px;
+    width: 100%;
+}
+
+#table td {
+    width: auto;
+    overflow: hidden;
+    word-wrap: break-word;
+} */
+
+table {
+    border-collapse: collapse;
+}
+
+table, td, th {
+    border: 1px solid black;
+}

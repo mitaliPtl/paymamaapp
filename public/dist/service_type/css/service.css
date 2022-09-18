@@ -1,0 +1,44 @@
+.nav-pills .nav-link.active{
+    color: black;
+    background-color: white;
+    border-bottom: 2px solid;
+}
+.nav-link{
+    font-weight:500;
+}
+.proceed-button{
+    margin-top: 28px;
+}
+.tab-pane{
+    padding: 15px;
+    border: 1px solid #a7a7a7;
+}
+.tab-content{
+    background-color: #cac2c2;
+}
+
+.radio-li{
+    padding-left: 0px;
+    margin-bottom: 0px;
+}
+.radio-li li {
+    display:inline;
+}
+.view-plan-btn{
+    font-size: 8px;
+    font-weight: 600
+}
+
+.all-plan-pills li{
+    font-size: 11px;
+}
+.table-centered tbody > tr td, .table-centered thead > tr th{
+    text-align: center;
+    font-size: 12px;
+}
+
+
+.table-font-sm tbody > tr td, .table-font-sm thead > tr th{
+    font-size: 12px;
+    border-top:0px;
+}

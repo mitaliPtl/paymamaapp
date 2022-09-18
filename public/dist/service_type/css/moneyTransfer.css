@@ -1,0 +1,87 @@
+.card-btn {
+    font-weight: 500;
+    border-radius: 50px;
+    width: -webkit-fill-available;
+}
+
+.sender-reg-col {
+    margin: 15px;
+    border: 1px solid lightgray;
+    padding-top: 15px;
+    ;
+}
+
+.otp-mask {
+    font-size: 30px;
+    /* border: 0px solid; */
+    text-align: center;
+    border: none;
+    border-bottom: 1px solid #1890ff;
+    outline: none;
+}
+
+.otp-mdl-footer {
+    display: ''
+}
+
+#otp-verify-btn,
+#please-wait-varify-otp {
+    text-align: center;
+    width: -webkit-fill-available;
+}
+
+#resend-otp-lbl {
+    font-size: 10px;
+    font-weight: 500;
+    color: #3d3d79;
+    cursor: pointer;
+}
+
+#otp-resend-timer {
+    font-size: 8px;
+}
+
+#invoiceModal .modal-content {
+    border-radius: 0px;
+}
+
+.invoice-table thead>tr>th {
+    background-color: #911a42;
+    color: white;
+}
+
+.invoice-table tbody>tr>td {
+    font-size: smaller;
+}
+
+@media print {
+    body {
+        -webkit-print-color-adjust: exact !important;
+    }
+    #invoiceModal .modal-content {
+        border-radius: 0px!important;
+    }
+    .invoice-table thead>tr>th {
+        background-color: #911a42!important;
+        color: white!important;
+    }
+    .invoice-table tbody>tr>td {
+        font-size: smaller!important;
+    }
+    .btn-print {
+        display: none!important;
+    }
+    .bg-success {
+        background-color: #32CD32!important;
+    }
+    @page {
+        margin: 0;
+    }
+    body {
+        margin: 1.6cm;
+    }
+}
+
+#send-mob-dtls-section {
+    display: none;
+}
