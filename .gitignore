@@ -1,0 +1,7 @@
+vendor/
+storage/
+.env.*.php
+.env.php
+.env
+public/storage
+app/storage
