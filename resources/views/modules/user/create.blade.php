@@ -145,7 +145,7 @@
       
     </div>
   </div>
-  <div class="modal fade" id="panmodal" role="dialog">
+    <div class="modal fade" id="panmodal" role="dialog">
     <div class="modal-dialog">
     
       <!-- Modal content-->
@@ -181,37 +181,6 @@
       
     </div>
   </div>
-
-  <div class="modal fade" id="bankmodal" role="dialog">
-    <div class="modal-dialog">
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-body">
-            <div class="row">
-                @php
-                     $bank_file_id = $userById['ekyc']['bank_file'];
-                     $resultspan = DB::select( DB::raw("SELECT * FROM tbl_files WHERE id = :somevariable"), array(
-                       'somevariable' => $bank_file_id,
-                     ));
-                     $bank_file_path='';
-                     $bank_file_name='';
-                     foreach ($resultspan as $value) 
-                     {
-                        $bank_file_path = $value->file_path;
-                        $bank_file_name = $value->name;
-                     }
-                @endphp
-                <div class="col-sm-12">
-                    <img src="https://paymamaapp.in/{{ $bank_file_path }}{{ $bank_file_name }}" style="height:auto;width:100%">
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
                                     </div>
                                 </div>
                                 <div class="col-2" style="padding:10px;">
@@ -242,11 +211,6 @@
                                         <div class="form-group">
                                             <label for="store_name">BRANCH NAME</label>
                                             <input type="text" class="form-control" @if( Auth::user()->roleId == 2 ) readonly @endif id="branch_name" name="branch_name" value="{{ isset($userById->ekyc->branch_name) ? $userById->ekyc->branch_name : '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="chequeImage">Cancel Cheque Image</label>
-                                            <br>
-                                            <button style="width: 100%;height: 38px;font-size: 19px;" type="button" class="btn btn-success btn-sm" id="viewkyc"  data-toggle="modal" data-target="#bankmodal" data-email="{{ isset($userById->id) ? $userById->id : '' }}">View</button>
                                         </div>
                                         <button style="width: 100%;height: 38px;font-size: 19px;" type="button" class="btn btn-success btn-sm" id="updatebank">Update Details</button>
                                     </div>
@@ -662,7 +626,9 @@
                                           
                                         </td>
                                         <td>
-                                            
+                                            <?php 
+                                            echo Auth::user()->roleId;
+                                            ?>
                                     <input data-id="{{$userById->userId}}" @if( Auth::user()->roleId == 2 ) disabled @endif data-service_id="{{$service_value->service_id}}" class="toggle-class" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="ON" data-off="OFF" @if($array[0]['status']==1) checked  @else @endif>
                      
                                         </td>

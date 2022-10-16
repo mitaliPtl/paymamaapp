@@ -1,0 +1,1 @@
+{"event":"TRANSFER_SUCCESS","transferId":"SP22655","referenceId":"663261833","acknowledged":"1","eventTime":"2022-08-08 21:15:31","utr":"222021671472","signature":"R3Fc9mIhxrEl8ZI2pswYSGWw+pULZ2oqjqb+T20wW2A="}

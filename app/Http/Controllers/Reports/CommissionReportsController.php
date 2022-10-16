@@ -154,8 +154,18 @@ class CommissionReportsController extends Controller
         foreach ($all_users as $key => $value) {
            
             $rechargeReportsByUser = json_decode($this->commAPI($request, $value, $service_id), true);
+            if(isset($rechargeReportsByUser['status']) && isset($rechargeReportsByUser['result'])) {
             $rechargeReportsByUser = ($rechargeReportsByUser['status'] != 'false') ? $rechargeReportsByUser['result'] : [];
             
+            if (count($rechargeReportsByUser)>0) {
+                $rechargeReports = array_merge($rechargeReports,$rechargeReportsByUser);
+            }
+            }
+            else
+            {
+                 $rechargeReportsByUser = [];
+            }
+        
             if (count($rechargeReportsByUser)>0) {
                 $rechargeReports = array_merge($rechargeReports,$rechargeReportsByUser);
             }

@@ -24,6 +24,45 @@ class BalanceRequestController extends Controller
      */
     public function index(Request $request)
     {
+        
+        $bankAccounts = BankAccount::select('bank_name')->distinct()->where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
+        if($request->get('bank_name')){
+            $bankName=$request->get('bank_name');
+            $bankAccountNumbers = BankAccount::where('is_deleted', Config::get('constants.NOT-DELETED'))->where('bank_name', 'like', '%'.$bankName.'%')->get();
+        }
+
+        return view('modules.bank.balance_request', compact('bankAccounts', 'request'));
+    }
+    /**
+     * Get the Account Numbers of Bank by Bank Name
+     */
+     
+     public function get_bankAccountNumbers(Request $request){
+        $bankName=$request->bank_name;
+        //print_r($bankName);
+        
+        $data['bankAccounts'] = BankAccount::where('is_deleted', Config::get('constants.NOT-DELETED'))->where('bank_name', 'like', '%'.$bankName.'%')->get();
+        
+        return response()->json($data);
+     }
+     /**
+     * Get the Accounts Mode by Account Number
+     */
+     
+     public function get_bankAccountMode(Request $request){
+        $acNumber=$request->account_number;
+        //echo $acNumber;
+        $bankAccounts = BankAccount::where('is_deleted', Config::get('constants.NOT-DELETED'))->where('account_no', 'like', '%'.$acNumber.'%')->get();
+        
+        $data['mode']=explode("," ,$bankAccounts[0]['mode']);
+        
+        
+        return response()->json($data);
+     }
+    /**
+     * Get the Reports 
+     */
+     public function balance_request_report(Request $request){
         if (Auth::user()->userId == Config::get('constants.ADMIN')) {
             $balanceRequests = BalanceRequest::orderBy('trans_date', 'DESC');
             // ->get();
@@ -53,13 +92,18 @@ class BalanceRequestController extends Controller
         }
         $filtersList = Config::get('constants.BALANCE_REQUEST_FILTER');
         $balanceRequests = $this->modifyBalanceReq($balanceRequests);
-        $bankAccounts = BankAccount::where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
-        $bankAccounts = $this->mofifyBankAccounts($bankAccounts);
+        $bankAccounts = BankAccount::select('bank_name')->distinct()->where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
+        //$bankAccounts = $this->mofifyBankAccounts($bankAccounts);
+        
+        //$bankAccountsBalance = BankAccount::where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
+        
 
         $total_amt = $this->calcTotalAmount($balanceRequests);
-        return view('modules.bank.balance_request', compact('balanceRequests', 'bankAccounts', 'qrCodeFilePath', 'total_amt', 'request','filtersList'));
-    }
-
+        return view('modules.bank.balance_request_report', compact('balanceRequests', 'bankAccounts', 'qrCodeFilePath', 'total_amt', 'request','filtersList'));
+     }
+     
+    
+    
     /**
      * Calculate Total Request Amount
      */
@@ -126,7 +170,7 @@ class BalanceRequestController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'bank' => 'required|string|max:255',
+            'bank_name' => 'required|string|max:255',
             'reference_id' => 'required|string|max:255',
             'amount' => 'required|string|max:255',
         ]);
@@ -135,17 +179,15 @@ class BalanceRequestController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        $mode = $request->get('bank');
-        if ($mode != 'QR_CODE') {
-            $mode_arr = explode("_",$request->get('bank'));
-            $mode  = $mode_arr[2];
-        }
-       
         
-
         $response = BalanceRequest::create([
-            'bank' => $request->get('bank'),
-            'mode' => $mode,
+            "deposit_date"=>$request->get('date_deposited'),
+            "account_holder_name"=>$request->get('account_holder_name'),
+            "account_holder_bank_name"=>$request->get('account_holder_bank_name'),
+            "account_holder_mode"=>$request->get('account_holder_mode'),
+            'transaction_id' => $this->generate_PMPR_id(),
+            'bank' => "".$request->get('bank_name')."-".$request->get('account_number')."",
+            'mode' => $request->get('transfer_mode'),
             'reference_id' => $request->get('reference_id'),
             'amount' => $request->get('amount'),
             'user_id' => Auth::user()->userId,
@@ -158,10 +200,22 @@ class BalanceRequestController extends Controller
         ]);
 
         if ($response) {
-            return redirect('/balance_request')->with('success', "Balance Request sent!");
+            
+            return redirect('/balance_request_report')->with(['success', "Balance Request sent!"]);
+        }else{
+            return redirect('/balance_request')->with('error', "Oops, Something went Wrong Please try again...!");
         }
     }
 
+
+        public function generate_PMPR_id(){
+            $postFix="PMPR";
+            $latestRow= BalanceRequest::latest()->first();
+            $latestRowId=$latestRow->id + 1;
+            $transactionId=$postFix.$latestRowId;
+            //print_r($transactionId);
+            return $transactionId;
+        }
    
 
     /**

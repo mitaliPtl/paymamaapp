@@ -143,8 +143,6 @@ Route::group(['middleware' => ['is_logged_in']], function () {
     Route::post('user_list', 'User\UserController@dTsRetailerListApi')->name('user.dTsRetailerListApi');
     Route::post('create_distributor_member', 'User\UserController@createDistributorMember')->name('user.createDistributorMember');
     Route::post('user_parent_info', 'User\UserController@getParentInfoAPI')->name('user.getParentInfoAPI');
-     // create retailer account
-    Route::post('create_retailer_member', 'User\UserController@createRetailerMember')->name('user.createRetailerMember');
 
     //payment getway Report
     Route::post('payment_gateway_report', 'Payment\OnlinePaymentController@getPaymentGatewayReportAPI')->name('payment.getPaymentGatewayReportAPI');

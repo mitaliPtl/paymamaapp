@@ -43,7 +43,7 @@
                                     </button>
                                     
                                     <div class="collapse navbar-collapse" style="float:right;" id="navbarNav">
-                                        <ul class=" navbar-nav ml-auto" style="margin-top:10px;float:right;margin-left:130px !important;">
+                                        <ul class=" navbar-nav ml-auto" style="margin-top:10px;float:right;margin-left:196px !important;">
                                             <li class="nav-item ">
                                                 <a class="nav-link top-nav"  style="font-size:16px;font-family: 'Montserrat',sans-serif;color:black;" href="{{ url('/') }}">HOME </a>
                                             </li>
@@ -76,9 +76,9 @@
                                                         @else
                                                             <!-- <a href="{{ url('/login') }}">Login</a> -->
                                                             <a style="margin-top:-6px;" href="{{ url('/login') }}" class="btn btn-login active" role="button" aria-pressed="true"><button type="button" class="btn btn-primary" style="background-color:#0f24a1;color:white;font-family: 'Montserrat',sans-serif;" href="#">Login</button></a>
-                                                            @if (Route::has('signup'))
-                                                                <a style="margin-top:-6px;" class="btn btn-login active" href="{{ route('signup') }}"><button type="button" class="btn btn-primary" style="background-color:#0f24a1;color:white;font-family: 'Montserrat',sans-serif;" href="#">Signup</button></a>
-                                                            @endif
+                                                            <!-- @if (Route::has('register'))
+                                                                <a href="{{ route('register') }}">Register</a>
+                                                            @endif -->
                                                         @endauth
                                                 
                                                 @endif

@@ -1,4 +1,4 @@
-@if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) || ( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) )
+@if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) || ( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) || ( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')))
                     <li class="nav-item dropdown">
                             <!-- <a class="nav-link dropdown-toggle waves-effect waves-dark user" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -->
                             <a class="nav-link dropdown-toggle waves-effect waves-dark " href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -31,7 +31,9 @@
                                       @endif
                                     </a>
                                     <a class="dropdown-item" href="{{ route('view_tds', Auth::user()->userId) }}"><img src="{{ asset('template_assets/TDS Certificate_ic.png') }}"> TDS Certificate</a>
+                                   @if( Auth::user()->roleId == Config::get('constants.ADMIN'))
                                    <a class="dropdown-item" href="distributor_info" onclick="showParentInfo()"><img src="{{ asset('template_assets/FOS_ic.png') }}">FOS & Distributor Info</a>
+                                    @endif
                                     <!-- <a class="dropdown-item" id="user_certificate" href="{{-- route('user_certificate') --}}" target="_blank"><img src="{{-- asset('template_new/img/profile/document.svg') --}}"> Authorize Certificate</a> -->
                                     <a class="dropdown-item" id="user_certificate" href="javascript:void(0)"><img src="{{ asset('template_assets/192x192.png') }}">Authorized Certificate</a>
                                     <a class="dropdown-item" id="two_factor" href="{{ route('two_factor') }}"><img src="{{ asset('template_new/img/profile/security_ic.png') }}"> 2FA Authentication</a>

@@ -9,6 +9,7 @@ class TransRevBal extends Model
     protected $table = "tbl_transfer_revert_balances";
 
     protected $fillable = [
+        "order_id",
         "bank",
         "reference_id",
         "payment_type",

@@ -7,6 +7,7 @@ use App\PymtGtwayMdChargeDtl;
 use App\SmsTemplate;
 use App\User;
 use App\WalletTransactionDetail;
+use App\PGWalletTransactionDetail;
 use App\VirtualTransactionDetail;
 use App\PaymentGatewayReport;
 use Auth;
@@ -185,8 +186,13 @@ class OnlinePaymentController extends Controller
             $smsData['amount'] = $walletResponse->total_amount;
             $smsData['updated_balance_amount'] = $balance;
             $smsData['mobile'] = $user->mobile;
-
-            $user->wallet_balance = (float) $balance;
+            
+            if( Auth::user()->roleId == Config::get('constants.RETAILER')){
+                $user->pg_wallet_balance = (float) $balance;
+            }else{
+                $user->wallet_balance = (float) $balance;
+                }
+            
             $userUpdresponse = $user->save();
 
             $deductRes = null;
@@ -1175,9 +1181,10 @@ class OnlinePaymentController extends Controller
         ])->get($baseurl.$orderId.'/payments')->json();
         Log::info('CASHFREE ORDER DATA : '.json_encode($response));
         // return $response;
+        //print_r($response);
         $charge_mode = "Charge mode error";
         $method = "";
-        if(isset($response[0]['cf_payment_id']) && $response[0]['payment_status'] == 'SUCCESS') {
+        if((isset($response[0]['cf_payment_id']) && $response[0]['payment_status'] == 'SUCCESS') || (isset($response[0]['cf_payment_id']) && $response[0]['payment_status'] == 'FAILED') || (isset($response[0]['cf_payment_id']) && $response[0]['payment_status'] == 'PENDING')) {
             if(array_key_exists("card",$response[0]['payment_method'])) {
                 $method = $response[0]['payment_method']['card']['card_number'];
                 if($response[0]['payment_method']['card']['card_type'] == 'credit_card') {
@@ -1233,20 +1240,26 @@ class OnlinePaymentController extends Controller
             }
             
             $user_id = $user->userId;
-            $userBalance = $user->wallet_balance;
+            $userBalance = $user->pg_wallet_balance;
             $smsData = [];
     
             $smsData['last_balance_amount'] = $userBalance;
-            $balance = (((float) $amount) + ($userBalance ? (float) $userBalance : 0));
+            if($response[0]['payment_status'] == 'SUCCESS'){
+                $balance = (((float) $amount) + ($userBalance ? (float) $userBalance : 0));    
+            }else{
+                $balance = (((float) $userBalance ));
+            }
+            
+            
             $smsData['updated_balance_amount'] = $balance;
             $smsData['amount'] = $amount;
             $smsData['mobile'] = $user->mobile;
     
-            $walletResponse = WalletTransactionDetail::create([
+            $walletResponse = PGWalletTransactionDetail::create([
                 'order_id' => $order_id,
                 'user_id' => $user->userId,
-                'transaction_status' => 'SUCCESS',
-                'response_msg' => 'SUCCESS',
+                'transaction_status' => $response[0]['payment_status'],
+                'response_msg' => $response[0]['payment_message'],
                 'bank_trans_id' => $response[0]['bank_reference'] ?? '',
                 'transaction_type' => 'CREDIT',
                 'transaction_id' => $orderId,
@@ -1256,17 +1269,17 @@ class OnlinePaymentController extends Controller
                 'total_amount' => (float) $amount,
                 'balance' => $balance,
             ]);
-    
+            
             if($walletResponse) {
                 $user = User::find((int) $user_id);
-                $user->wallet_balance = (float) $balance;
+                $user->pg_wallet_balance = (float) $balance;
                 $userUpdresponse = $user->save();
     
                 $pymt_gtwy_report = PaymentGatewayReport::create([
                     'order_id' => $order_id,
                     'user_id' => $user_id,
                     'role_id' => $user->roleId,
-                    'transaction_status' => 'SUCCESS',
+                    'transaction_status' => $response[0]['payment_status'],
                     'bank_trans_id' => $response[0]['bank_reference'] ?? '',
                     'transaction_type' => 'CREDIT',
                     'transaction_id' => $orderId,
@@ -1275,24 +1288,29 @@ class OnlinePaymentController extends Controller
                     'payment_mode' => $charge_mode ,
                     'payment_method' => $method,
                     'total_amount' => (float) $amount,
-                    'response_msg' => 'SUCCESS',
-                    'payment_status' => 'SUCCESS',
+                    'response_msg' => $response[0]['payment_message'],
+                    'payment_status' => $response[0]['payment_status'],
                     'balance' => $balance, 
                 ]);
+                
                 if($pymt_gtwy_report) {
                     // $walletResponse = [];
                     $walletResponse['payment_mode'] = strtolower($charge_mode);
                     $walletResponse['order_id'] = $order_id;
                     $walletResponse['user_id'] = $user_id;
                     $walletResponse['total_amount'] = $amount;
-                    $walletResponse['transaction_status'] = 'SUCCESS';
-                    $walletResponse['response_msg'] = 'SUCCESS';
+                    $walletResponse['transaction_status'] = $response[0]['payment_status'];
+                    $walletResponse['response_msg'] = $response[0]['payment_message'];
                     $walletResponse['bank_trans_id'] = $response[0]['bank_reference'];
                     $walletResponse['transaction_id'] = $orderId;
                     $walletResponse['payment_method'] = $method;
                     $walletResponse['trans_date'] = date("Y-m-d G:i:s",strtotime($response[0]['payment_time']));
-                    
-                    if($this->deductPymtGtwayCharge1($walletResponse, $user)) {
+                    if($response[0]['payment_status'] == 'SUCCESS'){
+                        $PaymentGatewayDeductions=$this->deductPymtGtwayCharges($walletResponse, $user);
+                    }else{
+                        $PaymentGatewayDeductions="";
+                    }
+                    if($PaymentGatewayDeductions) {
                         $success["success"] = "Success!!";
                         $statusMsg = "Transaction updated successfully!!";
                         $msgRes = $this->sendSmswithTransactionInfo($smsData);
@@ -1344,7 +1362,7 @@ class OnlinePaymentController extends Controller
 
     }
     
-    public function deductPymtGtwayCharge1($walletResponse, $user)
+    public function deductPymtGtwayCharges($walletResponse, $user)
     {
         $userDBRes = null;
         $response = null;
@@ -1359,10 +1377,10 @@ class OnlinePaymentController extends Controller
                 $debitChrgTypeAmt = $options['type'] == "RS" ? $options['charge'] : ($options['charge'] / 100 * $walletResponse['total_amount']);
                 
                 if($debitChrgTypeAmt > 0) {
-                    $user->wallet_balance = $user->wallet_balance - $debitChrgTypeAmt;
+                    $user->pg_wallet_balance = $user->pg_wallet_balance - $debitChrgTypeAmt;
                     $userDBRes = $user->save();
                     if ($userDBRes) {
-                        $walletResponse = WalletTransactionDetail::create([
+                        $walletResponse = PGWalletTransactionDetail::create([
                             'order_id' => isset($walletResponse['order_id']) ? $walletResponse['order_id'] : '',
                             'user_id' => $walletResponse['user_id'],
                             'transaction_status' => isset($walletResponse['transaction_status']) ? $walletResponse['transaction_status'] : '',

@@ -1,6 +1,9 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\PGWalletController;
+
+set_time_limit(0);
 
 Route::get('resetlimit', 'DMT\ResetController@resetlimit')->name('resetlimit');
 
@@ -29,7 +32,7 @@ Route::get('logins', function () {
 
 Route::get('signup', function () {
     return view('website.signup');
-})->name('signup');
+});
 
 Route::post('signup', 'User\UserController@signUpUser')->name('signup');
 
@@ -373,6 +376,9 @@ Route::get('generates', function (){
         // Route::post('get_user_frm_parent_role_id', 'User\UserController@getUserFromPrntRole')->name('getUserFromPrntRole');
     
         //Transfer/Revert Balance Routes
+        //PG WALLET
+        //Route::post('transfer_revert_balance', 'Bank\TransRevBalController@index')->name('find_user');
+        
         Route::get('all_transfer', 'Bank\TransRevBalController@allTransfer')->name('all_transfer');
         Route::post('all_transfer', 'Bank\TransRevBalController@allTransfer')->name('filter_all_transfer');
         Route::get('transfer_revert_balance', 'Bank\TransRevBalController@index')->name('transfer_revert_balance');
@@ -409,8 +415,10 @@ Route::get('generates', function (){
         Route::get('create_new_fos', 'User\UserController@createnewfos')->name('createnewfos');  //createfosgetpage
         Route::post('store_new_fos', 'User\UserController@storenewfos')->name('storenewfos');  //storenewfos
 
-        Route::get('create_new_retailer', 'User\UserController@createnewretailer')->name('createnewretailer');  //createnewretailer
+        Route::get('create_new_retailer', 'User\UserController@createnewretailer')->name('createnewretailer');//createnewretailer
         Route::post('store_new_retailer', 'User\UserController@storenewretailer')->name('storenewretailer');  //storenewretailer
+        Route::get('create_new_distributor', 'User\UserController@createnewdistributor')->name('createnewdistributor');//createnewretailer
+        Route::post('store_new_distributor', 'User\UserController@storenewdistributor')->name('storenewdistributor');  //storenewretailer
         
     });
 
@@ -449,7 +457,9 @@ Route::get('generates', function (){
 
 
         // Online Payment Routes
+//        Route::get('add_money', 'Payment\RazorpayController@onlinePayment')->name('online_payment');
         Route::get('online_payment', 'Payment\OnlinePaymentController@onlinePayment')->name('online_payment');
+        
         Route::post('online_payment_status', 'Payment\OnlinePaymentController@onlinePaymentStatus')->name('onlinePaymentStatus');
 
         // Balance Request Routes
@@ -486,16 +496,9 @@ Route::get('generates', function (){
         Route::post('add_beneficiary', 'ServiceType\MoneyTransferController@addBeneficiary')->name('add_beneficiary');
         
 
-        // Route::get('money_transfer_new', 'ServiceType\MoneyTransferController@index_new')->name('money_transfer');
-        /** START - KYC ROUTE */
-        Route::post('aadhaar-verify', 'User\UserController@submitAadharKyc')->name('aadhaarVerify');
-        Route::post('pan-verify', 'User\UserController@submitPanKyc')->name('panVerify');
-        Route::post('bank-verify', 'User\UserController@submitBankKyc')->name('bankVerify');
-        Route::post('photo-verify', 'User\UserController@submitSelfieKyc')->name('photoVerify');
-        Route::post('business-verify', 'User\UserController@submitBusinessKyc')->name('businessVerify');
-        Route::get('kyc-status', 'User\UserController@getAuthUserKycStatus')->name('userKycStatus');
-        Route::get('pincode', 'User\UserController@getPincode')->name('pincode');
-        /** END - KYC ROUTE */
+        //Route::get('money_transfer_new', 'ServiceType\MoneyTransferController@index_new')->name('money_transfer');
+
+
     });
     
    
@@ -613,6 +616,12 @@ Route::get('generates', function (){
     // Balance Request routes
     Route::get('balance_request', 'Bank\BalanceRequestController@index')->name('balance_request');
     Route::post('balance_request', 'Bank\BalanceRequestController@index')->name('balance_request_filter');
+    Route::post('get_bank_account_numbers', 'Bank\BalanceRequestController@get_bankAccountNumbers')->name('get_bank_account_numbers');
+    Route::post('get_bank_account_mode', 'Bank\BalanceRequestController@get_bankAccountMode')->name('get_bank_account_mode');
+    
+    Route::get('balance_request_report', 'Bank\BalanceRequestController@balance_request_report')->name('balance_request_report');
+    Route::post('balance_request_report', 'Bank\BalanceRequestController@balance_request_report')->name('balance_request_report_filter');
+    
     //Check User Mpin
     Route::get('verifyUserMpin', 'User\UserController@verifyUserMpin')->name('verifyUserMpin');
 
@@ -644,13 +653,29 @@ Route::get('generates', function (){
     // Route::post('/payment/status', 'Payment\PaytmController@paymentCallback')->name('paymentStatus');
     
     // Cashfree Gateway Routes
-    Route::post('/payment', 'Payment\OnlinePaymentController@payCashfree')->name('payment');
-    Route::get('/payment/status', 'Payment\OnlinePaymentController@paymentCallback')->name('paymentStatusCashfree');
+    //Route::post('/payment', 'Payment\OnlinePaymentController@payCashfree')->name('payment');
+    //Route::get('/payment/status', 'Payment\OnlinePaymentController@paymentCallback')->name('paymentStatusCashfree');
     
     //Razorpay Gateway Routes
-    // Route::post('/payment', 'Payment\RazorpayController@pay')->name('payment');
-    // Route::post('/payment/status', 'Payment\RazorpayController@paymentCallback')->name('paymentStatus');
-
+     Route::post('/payment', 'Payment\RazorpayController@payRazorPay')->name('payment');
+     Route::post('/payment/status', 'Payment\RazorpayController@paymentCallback')->name('paymentStatus');
+    
+    // PG Wallet Routes
+    Route::get('/pg-wallet-wallet', 'PGWallet\PGWalletController@index')->name('pg-wallet-wallet');
+    Route::post('/pg-wallet-wallet/store-wallet', 'PGWallet\PGWalletController@storeWallet')->name('pg-wallet-wallet-store');   
+    //PG Wallet to Bank Transfer
+    Route::get('/pg-wallet-bank-transfer', 'Payment\RazorpayController@razorpay_bankTransfer')->name('pg-wallet-bank-transfer');
+    Route::get('/pg-wallet-get-sender-details', 'Payment\RazorpayController@razorpay_getSenderDetails')->name('pg-wallet-get-sender-details');
+    Route::post('/pg-wallet-get-sender-details', 'Payment\RazorpayController@razorpay_getSenderDetails')->name('pg-wallet-get-sender-details');
+    Route::post('pg-wallet-add-beneficiary', 'Payment\RazorpayController@addBeneficiary')->name('pg-wallet-add-beneficiary');
+        
+    
+    
+    //Reports to PG Wallet
+    Route::get('/pg-wallet-passbook', 'PGWallet\PGWalletController@paymentGatewayPassbook')->name('pg-wallet-passbook');
+    Route::get('/pg-wallet-report', 'PGWallet\PGWalletController@paymentGatewayReport')->name('pg-wallet-report');
+     
+    //User Profile Update
     Route::get('update_profile_pic', 'User\UserController@updateUserProfilePicApi')->name('update_profile_pic');
 
      //complaint
@@ -690,6 +715,10 @@ Route::get('generates', function (){
     Route::get('delete_beneficiary_api/{response_status}/{response_msg}', 'ServiceType\MoneyTransferController@deleteBeneficiaryAPI')->name('delete_beneficiary_api');
 
     Route::get('notifications', 'User\UserController@userNotification')->name('notifications');
+    
+    
+    //Route::get('/pg-wallet-bank', 'PGWallet\PGWalletController@pg_wallet_to_bank')->name('pg-wallet-bank');
+    
    
 });
 

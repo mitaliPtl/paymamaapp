@@ -1,0 +1,31 @@
+{
+	"variables": [],
+	"info": {
+		"name": "CrazyPayAPIs",
+		"_postman_id": "162155e0-3405-adc6-c40e-a13d1bc12a15",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "LoginApi",
+			"request": {
+				"url": "http://smartpaytech.in/admin/index.php/LoginApi",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"userName\" : \"9168390555\",\n \"passWord\" : \"123456\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\ServiceType;
 
 use App\Http\Controllers\Controller;
@@ -164,11 +163,12 @@ class MoneyTransferController extends Controller
         }
 
         $data ['request']= $request->all();
-
+        
         $sender_dtls = Http::post(Config::get('constants.MONEY_TRANSFER.GET_SENDER_DTLS_API'), $requestBody);
         $sender_dtls = isset($sender_dtls) && $sender_dtls ? $sender_dtls->json() : [];
         //END get sender details
-
+       // print_r($sender_dtls);
+        
         // START get recipent details
         $sender_receipient_list = Http::post($receipient_api, $requestBody);
         

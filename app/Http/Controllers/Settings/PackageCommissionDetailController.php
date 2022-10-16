@@ -20,11 +20,12 @@ class PackageCommissionDetailController extends Controller
     public function index(Request $request)
     {
      
-        $packageCommDetails = PackageCommissionDetail::
-            where('service_id', $request->service_id)
-            ->where('pkg_id', $request->pkg_id);
+        $packageCommDetails = PackageCommissionDetail::leftJoin('tbl_operator_settings', 'tbl_pkg_commission_dtls.operator_id', '=', 'tbl_operator_settings.operator_id')
+            ->where('tbl_pkg_commission_dtls.service_id', $request->service_id)
+            ->where('tbl_pkg_commission_dtls.pkg_id', $request->pkg_id);
+            
         if (isset($request->operator_id) && $request->operator_id) {
-            $packageCommDetails->where('operator_id', $request->operator_id);
+            $packageCommDetails->where('tbl_operator_settings.operator_id', $request->operator_id);
         }
 
         $packageCommDetails = $packageCommDetails->get();
@@ -33,6 +34,7 @@ class PackageCommissionDetailController extends Controller
         $servicesTypes = ServicesType::where('is_deleted', Config::get('constants.NOT-DELETED'))->where('activated_status', Config::get('constants.ACTIVE'))->get();
         
         $operators = OperatorSetting::where('service_id', $request->service_id)->where('is_deleted', Config::get('constants.NOT-DELETED'))->where('activated_status', Config::get('constants.ACTIVE'))->get();
+        //print_r($operators);
         return view('modules.settings.pack_comm_dtls', compact('operators', 'servicesTypes', 'packageSettings', 'packageCommDetails', 'request'));
     }
 
@@ -180,7 +182,7 @@ class PackageCommissionDetailController extends Controller
                             ->where('service_id', $request->service_id)
                             ->get()->first();
             if ($service->alias ==  Config::get('constants.SERVICE_TYPE_ALIAS.UPI_TRANSFER')) {
-                $packageCommDetails->where('operator_id', $operators{0}->operator_id);
+                $packageCommDetails->where('operator_id', $operators[0]->operator_id);
             }
         }
         

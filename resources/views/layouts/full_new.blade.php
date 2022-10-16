@@ -13,7 +13,7 @@
     <title>PayMama - Business Made Easy</title>
     <link rel="canonical" href="https://www.wrappixel.com/templates/ampleadmin/" />
 
-    @if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) || ( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) )
+    @if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) || ( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) || ( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')))
 
     <!-- chartist CSS -->
     <link href="{{ asset('template_new/assets/libs/chartist/dist/chartist.min.css') }}" rel="stylesheet">
@@ -31,7 +31,7 @@
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
+	<![endif]-->
 
 
     <!-- <link rel="stylesheet" type="text/css"
@@ -132,8 +132,7 @@
     <!-- Main wrapper - style you can find in pages.scss -->
     <!-- ============================================================== -->
 
-    @if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) || ( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) )
-
+    @if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) || ( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) || ( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')) )
 
     <div id="main-wrapper">
         <!-- ============================================================== -->
@@ -160,7 +159,7 @@
                         <b class="logo-icon" style="padding:0px;">
                             <!--You can put here icon as well // <i class="wi wi-sunset"></i> //-->
                             <!-- Dark Logo icon -->
-                            <img src="{{ asset('template_assets/paymamma.PNG') }}" alt="homepage" class="dark-logo" style="width: 214px;
+                            <img src="{{ asset('template_assets/paymamma.PNG') }}" alt="homepage" class="dark-logo" style="width: 214px; 
     height: 71px;
     margin-left: 25px;" />
                             <!-- Light Logo icon -->
@@ -192,18 +191,24 @@
                     </ul>
 
                     <ul class="navbar-nav">
-                        <li class="nav-item header-img " style="display:block;">
-                            <a class="nav-link waves-effect waves-dark" href="{{ route('online_payment') }}">
-
-                                <img src="{{ asset('template_new/img/sidebar/ic_dashborad.png') }}"><span class="ml-2 font-medium">GRAPH VIEW</span>
-                            </a>
-                        </li>
+                        
+                        @if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) )
                         <li class="nav-item header-img " style="display:block;">
                             <a class="nav-link waves-effect waves-dark" href="{{ route('online_payment') }}">
 
                                 <img src="{{ asset('template_new/img/ic_add_money.png') }}" class="header-img"><span class="ml-2 font-medium">ADD MONEY</span>
                             </a>
                         </li>
+                        @endif
+                        <!-- 
+                        <li class="nav-item header-img " style="display:block;">
+                            <a class="nav-link waves-effect waves-dark" href="{{ route('online_payment') }}">
+
+                                <img src="{{ asset('template_new/img/ic_add_money.png') }}" class="header-img"><span class="ml-2 font-medium">ADD MONEY</span>
+                            </a>
+                        </li> -->
+                        
+                        
                         <li class="nav-item header-img" id="balance_request_qrcode">
                             <a class="nav-link waves-effect waves-dark" href="javascript:void(0)">
                                 <img src="{{ asset('template_new/img/barcode.png') }}"><span class="ml-1 font-medium">QR Code</span>
@@ -215,7 +220,14 @@
                                 <img src="{{ asset('template_new/img/wallet_new.png') }}"><span class="ml-2 font-medium">{{ Auth::user()->wallet_balance ? sprintf('%.2f', Auth::user()->wallet_balance) : 0}}</span>
                             </a>
                         </li>
-
+                       
+                        @if( ( Auth::user()->roleId == Config::get('constants.RETAILER')))
+                        <li class="nav-item header-img" style="width: max-content;">
+                            <a class="nav-link waves-effect waves-dark" href="javascript:void(0)"  rel="PG Wallet" id="pg_wallet">
+                                <img src="{{ asset('template_new/img/pg_wallet_new.png') }}"><span class="ml-2 font-medium">{{ Auth::user()->pg_wallet_balance ? sprintf('%.2f', Auth::user()->pg_wallet_balance) : 0}}</span>
+                            </a>
+                        </li>
+                        @endif
 
 
                         <!-- ============================================================== -->
@@ -285,7 +297,7 @@
                             <a class="dropdown-item" href="javascript:void(0)"><i class="ti-email mr-1 ml-1"></i> Inbox</a>
 
                         </div>
-                        </li>
+                       
 
 
 
@@ -470,7 +482,34 @@
                         </li>
                         @endif
 
-
+                        
+                        <li class="sidebar-item">
+                            <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
+                                <img src="{{ asset('template_new/img/sidebar/commissionreport_ic.png') }}">
+                                <span class="hide-menu" style="">Payment Gateway</span>
+                                <!-- <span class="badge badge-info badge-pill ml-auto mr-3 font-medium px-2 py-1">3</span> -->
+                            </a>
+                            <ul aria-expanded="false" class="collapse first-level">
+                                <li class="sidebar-item">
+                                    <a href="{{ route('pg-wallet-passbook') }}" class="sidebar-link">
+                                        <i class="mdi mdi-toggle-switch"></i>
+                                        <span class="hide-menu" style=""> Payment Gateway Passbook</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a href="{{ route('pg-wallet-report') }}" class="sidebar-link">
+                                        <i class="mdi mdi-tablet"></i>
+                                        <span class="hide-menu" style=""> Payment Gateway Reports</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a href="" class="sidebar-link">
+                                        <i class="mdi mdi-tablet"></i>
+                                        <span class="hide-menu" style=""> Payment Gateway Payouts</span>
+                                    </a>
+                                </li>
+                              </ul>
+                        </li>
 
 
                         <li class="sidebar-item">
@@ -524,12 +563,12 @@
                                         <span class="hide-menu" style=""> AADHAR PAY Report</span>
                                     </a>
                                 </li>
-                                <li class="sidebar-item">
+                                <!-- <li class="sidebar-item">
                                     <a href="{{ route('transaction_report',['service_type'=>'ICICI_CASH_DEPOSIT']) }}" class="sidebar-link">
                                         <i class="mdi mdi-sort-variant"></i>
                                         <span class="hide-menu" style=""> ICICI CASH DEPOSIT Report</span>
                                     </a>
-                                </li>
+                                </li> -->
 
                                 <li class="sidebar-item">
                                     <a class="sidebar-link" href="{{ route('passbook') }}">
@@ -560,7 +599,7 @@
 
                             </ul>
                         </li>
-
+                    
                         <li class="sidebar-item">
                             <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
                                 <img src="{{ asset('template_new/img/sidebar/commissionreport_ic.png') }}">
@@ -686,7 +725,7 @@
         <!-- ============================================================== -->
         <!-- End Left Sidebar - style you can find in sidebar.scss  -->
         <!-- ============================================================== -->
-        @elseif( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
+        @elseif( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR') )
         <!-- ============================================================== -->
         <!-- Distributor Left Sidebar - style you can find in sidebar.scss  -->
         <!-- ============================================================== -->
@@ -712,12 +751,17 @@
                         </li>
                        
                         <li class="sidebar-item">
+                        <span class="hide-menu" >
                             <a class="sidebar-link waves-effect waves-dark" href="{{ route('home') }}" aria-expanded="false">
                                 <img src="{{ asset('template_new/img/sidebar/ic_dashborad.png') }}">
                                 <span class="hide-menu" style="">Graph View</span>
                             </a>
+                            </span>
                         </li>
+                        
+                        @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
                         <li class="sidebar-item">
+                        
                             <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
                                 <img src="{{ asset('template_new/img/sidebar/txn_report_ic.png') }}">
                                 <span class="hide-menu" style="">Retailer Management</span>
@@ -734,7 +778,7 @@
                                 <li class="sidebar-item">
                                     <a href="/home" class="sidebar-link">
                                         <i class="mdi mdi-tablet"></i>
-                                        <span class="hide-menu" style="">Retailer List (KYC & NON KYC)</span>
+                                        <span class="hide-menu" style="">Retailer List</span>
                                     </a>
                                 </li>
                                 <li class="sidebar-item">
@@ -751,8 +795,53 @@
                                 </li>
 
                             </ul>
+                            
                         </li>
+                        @endif
+                        
+                        @if( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
+                        
                         <li class="sidebar-item">
+                        
+                            <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
+                                <img src="{{ asset('template_new/img/sidebar/txn_report_ic.png') }}">
+                                <span class="hide-menu" style="">Distributor Management</span>
+                                <!-- <span class="badge badge-info badge-pill ml-auto mr-3 font-medium px-2 py-1">4</span> -->
+                            </a>
+                            <ul aria-expanded="false" class="collapse first-level">
+
+                                <li class="sidebar-item">
+                                    <a href="/create_new_distributor" class="sidebar-link">
+                                        <i class="mdi mdi-toggle-switch"></i>
+                                        <span class="hide-menu" style="">Add New Distributor</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a href="/home" class="sidebar-link">
+                                        <i class="mdi mdi-tablet"></i>
+                                        <span class="hide-menu" style="">Distributor List</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a href="/credit_report?report=DISTRIBUTOR" class="sidebar-link">
+                                        <i class="mdi mdi-sort-variant"></i>
+                                        <span class="hide-menu" style="">Distributor Credit Report</span>
+                                    </a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a href="/member_passbook_pm" class="sidebar-link">
+                                        <i class="mdi mdi-sort-variant"></i>
+                                        <span class="hide-menu" style="">Distributor Account Report</span>
+                                    </a>
+                                </li>
+                                
+                            </ul>
+                        </li>
+                        @endif
+                        
+                        @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
+                        <li class="sidebar-item">
+                        
                             <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
                                 <img src="{{ asset('template_new/img/sidebar/txn_report_ic.png') }}">
                                 <span class="hide-menu" style="">Fos Mangement</span>
@@ -786,13 +875,36 @@
                                 </li>
 
                             </ul>
+                            
                         </li>
+                        @endif
+                        
                         <li class="sidebar-item">
-                            <a class="sidebar-link waves-effect waves-dark" href="{{ route('home') }}" aria-expanded="false">
-                                <img src="{{ asset('template_new/img/sidebar/ic_dashborad.png') }}">
-                                <span class="hide-menu" style="">Wallet Transfer</span>
+                            <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
+                            <img src="{{ asset('template_new/img/sidebar/ic_dashborad.png') }}">
+                                <span class="hide-menu" style="">Wallet Transfers </span>
+                                <!-- <span class="badge badge-info badge-pill ml-auto mr-3 font-medium px-2 py-1">4</span> -->
                             </a>
+                            <ul aria-expanded="false" class="collapse first-level">
+
+                                 <li class="sidebar-item">
+                                    <a href="{{ route('transfer_revert_balance') }}" class="sidebar-link">
+                                        <i class="mdi mdi-sort-variant"></i>
+                                        <span class="hide-menu" style="">Wallet Transfer</span>
+                                    </a>
+                                </li>
+
+                        
+                                <li class="sidebar-item">
+                                    <a href="/all_transfer" class="sidebar-link">
+                                        <i class="mdi mdi-sort-variant"></i>
+                                        <span class="hide-menu" style="">Wallet Transfer Report</span>
+                                    </a>
+                                </li>
+
+                            </ul>
                         </li>
+                        
                         <li class="sidebar-item">
                             <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false">
                                 <img src="{{ asset('template_new/img/sidebar/txn_report_ic.png') }}">
@@ -845,12 +957,12 @@
                                         <span class="hide-menu" style="">Aadhar Pay REPORT</span>
                                     </a>
                                 </li>
-                                <li class="sidebar-item">
+                              <!--  <li class="sidebar-item">
                                     <a href="{{ route('transaction_report',['service_type'=>'ICICI_CASH_DEPOSIT']) }}" class="sidebar-link" aria-expanded="false">
                                         <i class="mdi mdi-message-bulleted-off"></i>
                                         <span class="hide-menu" style="">ICICI Deposit REPORT</span>
                                     </a>
-                                </li>
+                                </li> -->
                                 <li class="sidebar-item">
                                     <a href="/user_payment_gateway_report" class="sidebar-link" aria-expanded="false">
                                         <i class="mdi mdi-message-bulleted-off"></i>
@@ -900,7 +1012,12 @@
                                     </a>
                                 </li>
                                
-
+                                <li class="sidebar-item">
+                                    <a href="/balance_request_report" class="sidebar-link">
+                                        <i class="mdi mdi-sort-variant"></i>
+                                        <span class="hide-menu" style="">Balance Request Report</span>
+                                    </a>
+                                </li>
 
                             </ul>
                         </li>
@@ -1082,7 +1199,7 @@
                                 </button>
                             </div>
                         </li>
-                        @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId == Config::get('constants.RETAILER'))
+                        @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId == Config::get('constants.RETAILER') || ( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')))
                         <!-- Wallet starts -->
                         <li class="nav-item" style="display:block;">
                             <div class="btn-group" style="margin-top:12px">
@@ -1396,12 +1513,12 @@
                                                 <span class="hide-menu" style="">Aadhar Pay Report</span>
                                             </a>
                                         </li>
-                                        <li class="sidebar-item">
-                                            <a href="{{ route('transaction_report',['service_type'=>'ICICI_CASH_DEPOSIT']) }}" class="sidebar-link" aria-expanded="false">
-                                                <i class="mdi mdi-message-bulleted-off"></i>
-                                                <span class="hide-menu" style="">ICICI Cash Deposit Report</span>
-                                            </a>
-                                        </li>
+                                        <!-- <li class="sidebar-item">
+                                    <a href="{{ route('transaction_report',['service_type'=>'ICICI_CASH_DEPOSIT']) }}" class="sidebar-link">
+                                        <i class="mdi mdi-sort-variant"></i>
+                                        <span class="hide-menu" style=""> ICICI CASH DEPOSIT Report</span>
+                                    </a>
+                                </li> -->
 
                                         <li class="sidebar-item">
                                             <a href="{{ route('icici_statement') }}" class="sidebar-link" aria-expanded="false">
@@ -1476,7 +1593,7 @@
                                         <li class="sidebar-item">
                                             <a href="{{ route('admin-home') }}" class="sidebar-link" aria-expanded="false">
                                                 <i class="mdi mdi-message-bulleted-off"></i>
-                                                <span class="hide-menu" style="">Member Wallet Reprot</span>
+                                                <span class="hide-menu" style="">Member Wallet Report</span>
                                             </a>
                                         </li>
                                         <li class="sidebar-item">
@@ -1575,7 +1692,7 @@
                                 </li>
 
                                 <li class="sidebar-item">
-                                    <a href="{{ route('balance_request') }}" class="sidebar-link">
+                                    <a href="{{ route('balance_request_report') }}" class="sidebar-link">
                                         <i class="mdi mdi-view-day"></i>
                                         <span class="hide-menu" style="">Balance Request Report</span>
                                     </a>
@@ -2776,7 +2893,7 @@
         <!-- ============================================================== -->
         @endif
 
-        @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
+        @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || ( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')) )
         <!-- ============================================================== -->
         <!-- Distributor Left Sidebar - style you can find in sidebar.scss  -->
         <!-- ============================================================== -->
@@ -3179,12 +3296,12 @@
                                         <span class="hide-menu" style="">Aadhar Pay Report</span>
                                     </a>
                                 </li>
-                                <li class="sidebar-item">
+                               <!-- <li class="sidebar-item">
                                     <a href="{{ route('transaction_report',['service_type'=>'ICICI_CASH_DEPOSIT']) }}" class="sidebar-link" aria-expanded="false">
                                         <i class="mdi mdi-message-bulleted-off"></i>
                                         <span class="hide-menu" style="">ICICI Cash Deposit Report</span>
                                     </a>
-                                </li>
+                                </li> -->
                                 <!-- Comment For Aproval End -->
 
                             </ul>
@@ -3981,7 +4098,7 @@
     </aside>
     <div class="chat-windows"></div>
 
-    @if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) || ( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) )
+    @if( ( Auth::user()->roleId == Config::get('constants.RETAILER')) || ( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) || ( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')) )
     <!-- KYC Modal starts -->
     <div class="modal fade" id="KycMsgModal">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -4117,9 +4234,125 @@
         </div>
     </div>
     <!-- Balance Request Add modal ends -->
+<!-- PG Wallet Modal starts -->
+    <div class="modal fade" id="pgModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
 
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <!-- <h4 class="modal-title">Transfer</h4> --> 
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <center>
+
+                        <a href="{{ route('pg-wallet-wallet') }}" class="btn btn-primary btn-lg success-grad" id="pg_wallet_transfer">Wallet Transfer</a>
+                        <a href="{{ route('pg-wallet-bank-transfer') }}" class="btn btn-primary btn-lg success-grad" id="bank_transfer">Bank Transfer</a>
+                        
+
+                    </center>
+
+                </div>
+                <div class="modal-footer" style="justify-content: center;">
+
+                  <!--   <button type="button" class="btn btn-secondary btn-lg success-grad" data-dismiss="modal">Cancel</button>  -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- PG Wallet Modal ends -->
+    
+     <!-- PG Wallet to Wallet Transer modal starts -->
+    <div class="modal" id="pgWalletModal" role="dialog">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel1" style="margin-left:60px">Wallet Transfer</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="col-12">
+
+
+                    <form id="chgPwdForm" action="" method="post">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="form-group text-center" style="margin-top:20px">
+                                <input type="text" class="form-control text-center" name="amount" id="profile_password" placeholder="Enter Amount" autocomplete="off">
+                            </div>
+
+                            <div class="form-group text-center" style="margin-top:20px">
+                            <input type="text text-center" class="form-control text-center" name="mpin" id="new-mpin" placeholder="Enter New Mpin" autocomplete="off">
+                        </div>
+                            </div>
+
+                            <div class="form-group text-center hide-this" id="pwd-otp-verify-div" style="margin-top:20px">
+                                <input type="number" class="form-control text-center" name="verification_otp" id="pwd_verification_otp" placeholder="Enter 6 digit OTP you received." autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="justify-content: center;">
+
+                            <button type="submit" class="btn btn-secondary btn-lg success-grad btn-block" id="update-pwd-btn">Update</button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- PG Wallet to Wallet Transer modal ends -->
+    
+    <!-- PG Wallet to Bank Transer modal starts -->
+    <div class="modal" id="pgBankModal" role="dialog">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel1" style="margin-left:60px">Bank Transfer</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="col-12">
+
+
+                    <form id="chgPwdForm" action="" method="post">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="form-group text-center" style="margin-top:20px">
+                                <input type="text" class="form-control text-center" name="amount" id="profile_password" placeholder="Enter Amount" autocomplete="off">
+                            </div>
+                            
+                            <div class="form-group text-center" style="margin-top:20px">
+                                <select type="text" class="form-control text-center" name="bank" id="profile_password" placeholder="Enter Amount" autocomplete="off"> 
+                                <option> Select Bank</option>
+                                </select>
+                            </div>
+                        
+                            <div class="form-group text-center" style="margin-top:20px">
+                            <input type="text text-center" class="form-control text-center" name="mpin" id="new-mpin" placeholder="Enter New Mpin" autocomplete="off">
+                        </div>
+                            </div>
+
+                            <div class="form-group text-center hide-this" id="pwd-otp-verify-div" style="margin-top:20px">
+                                <input type="number" class="form-control text-center" name="verification_otp" id="pwd_verification_otp" placeholder="Enter 6 digit OTP you received." autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="justify-content: center;">
+
+                            <button type="submit" class="btn btn-secondary btn-lg success-grad btn-block" id="update-pwd-btn">Update</button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- PG Wallet to Bank Transer modal ends -->
+    
     <!-- Security Modal starts -->
-    <div class="modal fade" id="securityModal">
+    <div class="modal fade" id="securityModal" style="margin-left:42%;width:23%;">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
 
@@ -4131,22 +4364,31 @@
 
                 <!-- Modal body -->
                 <div class="modal-body">
-                    <center>
+                       <center>
 
-                        <button type="button" class="btn btn-primary btn-lg success-grad" id="change_pwd">Change Password</button>
-                        <button type="button" class="btn btn-secondary btn-lg success-grad" id="change_mpin">Change MPIN</button>
+
+                        <button type="button" class="btn btn-secondary btn-lg success-grad" id="change_mpin" style="background:green;color:white;width:180px;">Change MPIN</button>
 
                     </center>
+                    <br>
+                    <center>
+
+                        <button type="button" class="btn btn-primary btn-lg success-grad" id="change_pwd"  style="background:green;color:white;">Change Password</button>
+                        
+                    </center>
+                 
 
                 </div>
-                <div class="modal-footer" style="justify-content: center;">
+                <div class="modal-footer" style="">
 
-                    <button type="button" class="btn btn-secondary btn-lg success-grad" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary btn-lg success-grad pull-right" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
     <!-- Security Modal ends -->
+    
+    
 
     <!-- Change Password modal starts -->
     <div class="modal" id="chgPwdModal" role="dialog">
@@ -4317,6 +4559,7 @@
             </div>
         </div>
     </div>
+    
     <!-- certificate  Modal ends -->
     <!-- ============================================================== -->
     <!-- footer -->
@@ -4453,5 +4696,5 @@
         $('#calendar').fullCalendar('option', 'height', 650);
     </script>
     @endif
-
+</body>
 </html>

@@ -1,7 +1,7 @@
 <?php
 
 namespace App;
-//comment
+
 use Illuminate\Database\Eloquent\Model;
 
 class ApiAmountDetail extends Model

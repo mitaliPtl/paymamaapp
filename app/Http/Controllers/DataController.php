@@ -6,6 +6,7 @@ use App\BalanceRequest;
 use App\KycDetail;
 use App\Role;
 use App\TransactionDetail;
+use App\PGWalletTransactionDetail;
 use App\ApiSetting;
 use App\User;
 use App\OperatorSetting;

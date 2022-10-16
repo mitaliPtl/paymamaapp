@@ -28,11 +28,23 @@ class TransRevBalController extends Controller
             $users = $this->findUser($request);
             $users = $this->modifyUsers($users);
         }
+        //print_r($users);
         
         $dtPaymentType = Config::get('constants.DT_PAYMENT_TYPE');
         $bankAccounts = BankAccount::where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
         $bankAccounts = $this->mofifyBankAccounts($bankAccounts);
         return view('modules.bank.trans_rev_bal', compact('users', 'bankAccounts', 'request','dtPaymentType'));
+    }
+    
+    public function pg_wallet_to_wallet(Request $request)
+    {
+        $users = Auth::user();
+        
+        
+        $dtPaymentType = Config::get('constants.DT_PAYMENT_TYPE');
+        $bankAccounts = BankAccount::where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
+        $bankAccounts = $this->mofifyBankAccounts($bankAccounts);
+        return view('modules.other.pg_wallet_transfer', compact('users', 'bankAccounts', 'request','dtPaymentType'));
     }
 
     /**
@@ -104,7 +116,153 @@ class TransRevBalController extends Controller
      */
     public function transferBalance(Request $request)
     {
-         
+       if($request->transfer_type == 'revert'){
+            if ($request->mpin) {
+            if (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.SYSTEM_ADMIN')){
+                $validator = Validator::make($request->all(), [
+                    'bank' => 'required|string|max:255',
+                    'reference_id' => 'required|string|max:255',
+                    'amount' => 'required|string|max:255',
+                    'mpin' => 'required|string|max:255',
+                ]);
+            }else{
+                $validator = Validator::make($request->all(), [
+                    'payment_type' => 'required|string|max:255',
+                    'amount' => 'required|string|max:255',
+                    'mpin' => 'required|string|max:255',
+                ]);
+            }
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors()->toJson(), 400);
+            }
+            
+            if (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.SYSTEM_ADMIN')){
+            $trnRvresponse = TransRevBal::where('bank', $request->bank)
+                ->where('reference_id', $request->reference_id)
+                ->where('user_id', $request->user_id)
+                ->where('amount', $request->amount)->get();
+            }else{
+                $trnRvresponse = TransRevBal::where('payment_type', $request->payment_type)
+                ->where('user_id', $request->user_id)
+                ->where('amount', $request->amount)->get();
+            }
+            
+            $dbSmsData = [];
+            // if (isset($trnRvresponse) && count($trnRvresponse) > 0) {
+                $user = User::find((int) $request->user_id);
+                $dbSmsData['last_balance_amount'] = $user->wallet_balance;
+                $user->wallet_balance = $user->wallet_balance - $request->amount;
+                $userResponse = $user->save();
+
+                $dbSmsData['amount'] = $request->amount;
+                $dbSmsData['updated_balance_amount'] = $user->wallet_balance;
+                $dbSmsData['mobile'] = $user->mobile;
+
+                if ($userResponse && Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.DISTRIBUTOR') || Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR') ) {
+                    $loggedUser = User::find((int) Auth::id());
+                    $crSmsData['last_balance_amount'] = $loggedUser->wallet_balance;
+
+                    if ($loggedUser) {
+                        $loggedUser->wallet_balance = $loggedUser->wallet_balance + $request->amount;
+                        $loggedUserResponse = $loggedUser->save();
+
+                        
+                        $crSmsData['amount'] = $request->amount;
+                        $crSmsData['updated_balance_amount'] = $loggedUser->wallet_balance;
+                        $crSmsData['mobile'] = $loggedUser->mobile;
+
+                        
+                        $walletDTCRResponse = WalletTransactionDetail::create([
+                            'user_id' => Auth::id(),
+                            'transaction_status' => "SUCCESS",
+                            'response_msg' => "",
+                            'transaction_type' => "CREDIT",
+                            'transaction_id' => "",
+                            'trans_date' => now(),
+                            'payment_type' => Config::get('constants.PAYMENT_TYPE.PAYMT_WALLET'),
+                            'payment_mode' => Config::get('constants.PAYMENT_GTWAY_TYPE.REVERT'),
+                            'total_amount' => $request->amount,
+                            'balance' => $loggedUser->wallet_balance,
+                        ]);
+
+                        if($walletDTCRResponse){
+                            $this->sendSmswithTransactionInfo($crSmsData);
+                            $this->notifyWithTransactionInfo($smsData, $request->user_id);
+                        }
+                    }
+                }
+
+                $trnRvresponse = TransRevBal::create([
+                    'order_id'=>$this->createOrderID(),
+                    'bank' => $request->get('bank'),
+                    'reference_id' => $request->get('reference_id'),
+                    'payment_type' => $request->get('payment_type'),
+                    'amount' => $request->get('amount'),
+                    'user_id' => $request->get('user_id'),
+                    'role' => $request->get('role_id'),
+                    'mobile_no' => $request->get('user_mobile'),
+                    'balance' => $user->wallet_balance,
+                    'trans_date' => now(),
+                    'transfer_type' => "DEBIT",
+                    'transfered_by' => Auth::user()->userId,
+                ]);
+
+                $walletDBResponse = WalletTransactionDetail::create([
+                    'order_id' => $request->reference_id,
+                    'user_id' => $request->user_id,
+                    'transaction_status' => "SUCCESS",
+                    'response_msg' => "",
+                    'bank_trans_id' => $request->reference_id,
+                    'transaction_type' => "DEBIT",
+                    'transaction_id' => "",
+                    'trans_date' => now(),
+                    'payment_type' => Config::get('constants.PAYMENT_TYPE.PAYMT_WALLET'),
+                    'payment_mode' => Config::get('constants.PAYMENT_GTWAY_TYPE.REVERT'),
+                    'total_amount' => $request->amount,
+                    'balance' => $user->wallet_balance,
+                ]);
+
+                if ($walletDBResponse) {
+                    $loggedUser = User::find((int) Auth::id());
+                    $use_debit_value = (float)$user->distributor_credit - (float) $request->amount;
+                    $update_debit = User::where('userId', $request->get('user_id'))
+                                        ->update(['distributor_credit'=> $use_debit_value]);
+
+                    if($request->payment_type == 'CREDIT'){
+
+                        $order_id = $this->createOrderID();
+                        $transfer_credit = TransferCreditReport::create([
+                                                        'order_id'=>$order_id,
+                                                        'reference_id' => $request->reference_id,
+                                                        // 'payment_type' => $request->payment_type, 
+                                                        'transfer_by_id' =>  $loggedUser->userId,
+                                                        'transfer_by_role' => $loggedUser->roleId,
+                                                        'transfer_to_id' => $request->get('user_id'),
+                                                        'transfer_to_role' => $request->get('role_id'),
+                                                        'mobile_transfer_by' =>$request->user_mobile,
+                                                        'amount'=> $request->amount,
+                                                        'trans_date' => now(),
+                                                        'transaction_type' => "DEBIT",
+                                                        'balance' =>  $user->wallet_balance,
+                                                        'transfer_type' => "REVERT",
+                                                        'created'=>now()
+    
+                                            ]);
+                    }
+
+                    $dbsmsRes = $this->sendDBSmswithTransactionInfo($dbSmsData);
+                    $dbNotifyRes = $this->sendDBNotifywithTransactionInfo($dbSmsData, $request->user_id);
+                    // $dbsmsRes = true;
+                    if($dbsmsRes){
+                        return back()->with('success', "Revert Successful!!");
+                    }
+                }
+            // } else {
+            //     return back()->with('error', "Entered Transaction record not found!!");
+            // }
+        }
+       }else{  
         
         if ($request->mpin) {
             if (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.SYSTEM_ADMIN')){
@@ -122,7 +280,7 @@ class TransRevBalController extends Controller
                 ]);
             }
            
-
+            $order_id = $this->createOrderID();
             if ($validator->fails()) {
                 return response()->json($validator->errors()->toJson(), 400);
             }
@@ -130,7 +288,7 @@ class TransRevBalController extends Controller
             $loggedUser = User::find((int) Auth::id());
 
             if (isset($request->amount) && $request->amount) {
-                if (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.DISTRIBUTOR')) {
+                if (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.DISTRIBUTOR') || Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR') ) {
                     if($loggedUser->wallet_balance < $loggedUser->min_balance){
                         return back()->with('error', "Insufficient Balance!!");
                     }
@@ -146,6 +304,7 @@ class TransRevBalController extends Controller
 
             $smsData = [];
             $user = User::find((int) $request->user_id);
+            //print_r($user);
             $smsData['last_balance_amount'] = $user->wallet_balance;
             $user->wallet_balance = $user->wallet_balance + $request->amount;
             $userResponse = $user->save();
@@ -156,6 +315,7 @@ class TransRevBalController extends Controller
 
             if ($userResponse) {
                 $trnRvresponse = TransRevBal::create([
+                    'order_id'=>$this->createOrderID(),
                     'bank' => $request->get('bank'),
                     'reference_id' => $request->get('reference_id'),
                     'payment_type' => $request->get('payment_type'),
@@ -171,7 +331,7 @@ class TransRevBalController extends Controller
             }
 
             if ($trnRvresponse) {
-                if (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.DISTRIBUTOR')) {
+                if (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.DISTRIBUTOR') || Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR')) {
                     $walletDebitResponse = WalletTransactionDetail::create([
                         'order_id' => $request->reference_id,
                         'user_id' => Auth::id(),
@@ -206,12 +366,13 @@ class TransRevBalController extends Controller
                         'balance' => $user->wallet_balance,
                     ]);
 
-                        if ($loggedUser->roleId == Config::get('constants.DISTRIBUTOR')) {
+                        if ($loggedUser->roleId == Config::get('constants.DISTRIBUTOR') || Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR')) {
                             
                             $use_debit_value = (float)$user->distributor_credit + (float) $request->amount;
-                            $update_debit = User::where('userId', $request->user_id)
+                            if($request->payment_type == 'CREDIT'){
+                                $update_debit = User::where('userId', $request->user_id)
                                                 ->update(['distributor_credit'=> $use_debit_value]);
-
+                                    }
                         }elseif ($loggedUser->roleId == Config::get('constants.FOS') ) {
 
                             $use_debit_value = (float)$user->fos_credit + (float) $request->amount;
@@ -223,9 +384,10 @@ class TransRevBalController extends Controller
                         // $use_debit_value = (float)$user->distributor_credit + (float) $request->amount;
                         // $update_debit = User::where('userId', $request->user_id)
                         //                     ->update(['distributor_credit'=> $use_debit_value]);
-                                             
+                         $order_id=$this->createOrderID();                    
                         if($request->payment_type == 'CREDIT'){
                             $transfer_credit = TransferCreditReport::create([
+                                                                                'order_id'=>$order_id,
                                                                                 'reference_id' => $request->reference_id,
                                                                                 // 'payment_type' => $request->payment_type,
                                                                                 'transfer_by_id' => $loggedUser->userId,
@@ -244,18 +406,20 @@ class TransRevBalController extends Controller
                         }
                         
                 }
-
+                
                 if ($walletResponse) {
                     $msgRes = $this->sendSmswithTransactionInfo($smsData);
+                    
                     $this->notifyWithTransactionInfo($smsData, $request->user_id);
 
-                    // $msgRes = true;
+                     $msgRes = true;
                     if ($msgRes) {
                         return back()->with('success', "Transfered Successfully !!");
                     }
                 }
 
             }
+        }
         }
     }
 
@@ -275,14 +439,14 @@ class TransRevBalController extends Controller
                 "updated_balance_amount" => $smsData['updated_balance_amount'],
             ]);
         }
-
+        
         if ($msg) {
             if ($smsData['mobile']) {
                 $result = $this->sendSms($msg, $smsData['mobile'],$SmsBalAddTemplate->template_id);
             }
 
         }
-
+        //print_r($result);
         return $result;
     }
 
@@ -445,6 +609,7 @@ class TransRevBalController extends Controller
                 }
 
                 $trnRvresponse = TransRevBal::create([
+                    'order_id'=>$this->createOrderID(),
                     'bank' => $request->get('bank'),
                     'reference_id' => $request->get('reference_id'),
                     'payment_type' => $request->get('payment_type'),
@@ -481,8 +646,9 @@ class TransRevBalController extends Controller
 
                     if($request->payment_type == 'CREDIT'){
 
-                        
+                        $order_id=$this->createOrderID();
                         $transfer_credit = TransferCreditReport::create([
+                                                        'order_id'=>$order_id,
                                                         'reference_id' => $request->reference_id,
                                                         // 'payment_type' => $request->payment_type, 
                                                         'transfer_by_id' =>  $loggedUser->userId,
@@ -605,6 +771,7 @@ class TransRevBalController extends Controller
                 }
 
                 $trnRvresponse = TransRevBal::create([
+                    'order_id'=>$this->createOrderID(),
                     'bank' => $request->get('bank'),
                     'reference_id' => $request->get('reference_id'),
                     'payment_type' => $request->get('payment_type'),
@@ -643,7 +810,9 @@ class TransRevBalController extends Controller
                     if($request->payment_type == 'CREDIT'){
 
                         $loggedUser = User::find((int) Auth::id());
+                        $order_id=$this->createOrderID();
                         $transfer_credit = TransferCreditReport::create([
+                                                        'order_id'=>$order_id,
                                                         'reference_id' => $request->reference_id,
                                                         // 'payment_type' => $request->payment_type, 
                                                         'transfer_by_id' =>  $request->user_id,
@@ -927,6 +1096,7 @@ class TransRevBalController extends Controller
 
         if ($userResponse) {
             $trnRvresponse = TransRevBal::create([
+                'order_id'=>$this->createOrderID(),
                 'bank' => $request->get('bank'),
                 'reference_id' => $request->get('reference_id'),
                 'payment_type' => $request->get('payment_type'),
@@ -1009,8 +1179,9 @@ class TransRevBalController extends Controller
                     }
                     
 
-
+                    $order_id=$this->createOrderID();
                     $transfer_credit = TransferCreditReport::create([
+                                                    'order_id'=>$order_id,
                                                     'reference_id' => $request->reference_id,
                                                     // 'payment_type' => $request->payment_type,
                                                     'transfer_by_id' =>  $request->user_id,
@@ -1148,5 +1319,18 @@ class TransRevBalController extends Controller
         return $this->sendError("No record Found");
 
     }
-
+    
+    public function createOrderID(){
+        $max_id = TransferCreditReport::max('id');
+        $max_id = 1+(int)$max_id;
+        $newID = "PMTR".$max_id;
+        return $newID;
+    }
+    
+    public function createTransOrderID(){
+        $max_id = TransferCreditReport::max('id');
+        $max_id = 1+(int)$max_id;
+        $newID = "PMTR".$max_id;
+        return $newID;
+    }
 }

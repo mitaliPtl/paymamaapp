@@ -6,28 +6,7 @@ ini_set('memory_limit', '-1');
 
 @section('page_content')
 
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<style>
-    .file-upload-wrapper {
-        margin-bottom: 10px;
-    }
-    .upload-file{
-        float: left;
-    background: lightgray;
-    padding: 10px 12px;
-    border-radius: 10px;
-    /* font-size: 14px; */
-    }
-    .upload-file i{
-        margin-right: 10px;
-    }
-    .file-box{
-        opacity: 0;
-        margin-left: -93px;
-        margin-top: 7px;
-    }
-</style>
-@if( Auth::user()->roleId == Config::get('constants.RETAILER'))
+@if( Auth::user()->roleId == Config::get('constants.RETAILER') )
 <link rel="stylesheet" type="text/css" href="{{ asset('template_new/assets/libs/select2/dist/css/select2.min.css') }}">
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
 <link href="{{ asset('template_assets/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css') }}" rel="stylesheet">
@@ -59,264 +38,6 @@ ini_set('memory_limit', '-1');
 <!-- ============================================================== -->
 <!-- Container fluid  -->
 <!-- ============================================================== -->
-
-<!-- START - AADHAAR KYC MODAL -->
-<div class="modal fade" id="aadhaarModal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header border-bottom-0">
-        <h2 class="modal-title" id="exampleModalLabel" style="color: red;"><u>Aadhaar Verification</u></h2>
-      </div>
-      <form id="aadhaarForm" enctype='multipart/form-data'>
-        <div class="modal-body">
-            <h4 class="error" id="aadhaarError" style="color: red;"></h4>
-          <div class="form-group">
-            <label for="adhaarNumber">Aadhaar Number</label><span style="color:#ff0000">*</span> <small id="bankInfo" class="text-muted mb-2">Aadhaar Number be like ****-****-****</small>
-            <input type="text" autocomplete="off" onkeyup="addHyphen(this)" onfocusout="validateAadhaar()" class="form-control" name="adhaarNumber" required id="adhaarNumber" placeholder="Enter Aadhaar Number">
-            <span class="error" id="aadhaarNoErr" style="color:red;"></span>
-            <!-- <small id="emailHelp" class="form-text text-muted">Your information is safe with us.</small> -->
-          </div>
-          <div class="form-group">
-            <label for="phoneNo">Mobile Number</label><span style="color:#ff0000">*</span>
-            <input type="text" autocomplete="off" onfocusout="validateMobile()" class="form-control" name="phoneNo" required id="phoneNo" placeholder="Enter Mobile Number">
-            <span class="error" id="mobileNoErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="shareCode">Aadhaar Zip Code</label><span style="color:#ff0000">*</span>
-            <input type="number" maxlength="4" class="form-control" id="shareCode" name="shareCode" required placeholder="Enter 4 digit Aadhaar zip code">
-          </div>
-          <div class="form-group">
-            <small class="form-text text-muted">Upload your aadhaar file (zip only).</small>
-            <small class="form-text text-muted">Aadhaar Zip download link <a style="color: red;" target="_blank" href="https://resident.uidai.gov.in/offline-kyc">(Click here)</a></small>
-          </div>
-          <div class="form-group">
-            <div class="file-upload-wrapper">
-            <span class="upload-file"><i class="fa fa-upload"></i>Upload</span>
-                <input type="file" id="zipFileCode" required name="zipFileCode" class="file-upload file-box" accept="zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed" />
-            </div>
-          </div>
-          <div class="form-group">
-                <small class="form-text text-muted">How to download Aadhaar file? <a style="color: red;" target="_blank" href="https://www.youtube.com/watch?v=kFQWrm4x9N8">(Click here)</a></small>
-          </div>
-        </div>
-        <div class="modal-footer border-top-0 d-flex">
-          <button type="button" id="aadhaarVerify" class="btn btn-lg  success-grad">Next</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- END - AADHAAR KYC MODAL -->
-
-<!-- START - PANCARD KYC MODAL -->
-<div class="modal fade kyc-modal" id="pancardModal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header border-bottom-0">
-        <h1 class="modal-title" id="exampleModalLabel" style="color: red;"><u>Pan Verification</u></h2>
-      </div>
-      <form id="panForm" enctype='multipart/form-data'>
-        <div class="modal-body">
-            <h4 class="error" id="panError" style="color: red;"></h4>
-          <div class="form-group">
-            <label for="panNumber">PAN Number</label><span style="color:#ff0000">*</span>
-            <input type="text" style="text-transform:uppercase;" onfocusout="validatePAN()" class="form-control" name="panNumber" required id="panNumber" placeholder="Enter PAN Number">
-            <span class="error" id="panNoErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="panFile">Upload PAN Card</label><span style="color:#ff0000">*</span>
-            <div class="file-upload-wrapper">
-                <span class="upload-file"><i class="fa fa-upload"></i>Upload</span>
-                <input type="file" id="panFile" required name="panFile" class="file-upload file-box" accept="image/*" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer border-top-0 d-flex">
-          <button type="button" id="panVerify" class="btn btn-lg  success-grad">Next</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- END - PANCARD KYC MODAL -->
-
-<!-- START - BANK KYC MODAL -->
-<div class="modal fade kyc-modal" id="bankModal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header border-bottom-0">
-        <h2 class="modal-title" id="exampleModalLabel" style="color: red;"><u>Verify Your Bank Account</u></h2>
-      </div>
-      <form id="bankForm" enctype='multipart/form-data'>
-        <div class="modal-body">
-            <small id="bankInfo" class="form-text mb-2" style="color: #ff2323de; font-size: 1.1rem;">Cool We Never Share Your Bank Details</small>
-            <h4 class="error" id="bankError" style="color: red;"></h4>
-          <div class="form-group">
-            <label for="accountNumber">Account Number</label><span style="color:#ff0000">*</span>
-            <input type="text" onfocusout="validateBankAccount()" class="form-control" name="bankAccountNo" required id="bankAccountNo" placeholder="Enter Account Number">
-            <span class="error" id="accNoErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="ifscCode">IFSC Code</label><span style="color:#ff0000">*</span>
-            <input type="text" style="text-transform:uppercase" onfocusout="validateIFSCCode()" class="form-control" name="ifscCode" required id="ifscCode" placeholder="Enter IFSC Code">
-            <span class="error" id="ifscCodeErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="beneficiaryName">Beneficiary Name</label><span style="color:#ff0000">*</span>
-            <input type="text" class="form-control" style="text-transform:uppercase" name="accName" required id="accName" placeholder="Enter Beneficiary Name">
-            <span class="error" id="beneficiaryNameErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="chequeImage">Cancel Cheque Upload</label><span style="color:#ff0000">*</span>
-            <div class="file-upload-wrapper">
-                <span class="upload-file"><i class="fa fa-upload"></i>Upload</span>
-                <input type="file" id="chequeUpload" required name="chequeUpload" class="file-upload file-box" accept="image/*" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer border-top-0 d-flex">
-          <button type="button" id="bankVerify" class="btn btn-lg  success-grad">Next</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- END - BANK KYC MODAL -->
-
-<!-- START - SELFPHOTO KYC MODAL -->
-<div class="modal fade kyc-modal" id="photoModal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header border-bottom-0">
-        <h2 class="modal-title" id="exampleModalLabel" style="color: red;"><u>Selfie Verification</u></h2>
-      </div>
-      <form id="photoForm" enctype='multipart/form-data'>
-        <div class="modal-body">
-            <h4 class="error" id="phptoError" style="color: red;"></h4>
-          <div class="form-group">
-            <label for="photoImage">Upload Your Selfie Picture</label><span style="color:#ff0000">*</span>
-            <div class="file-upload-wrapper">
-                <span class="upload-file">Upload</span>
-                <input type="file" id="selfieImage" required name="selfieImage" class="file-upload file-box" accept="image/*" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer border-top-0 d-flex">
-          <button type="button" id="photoVerify" class="btn btn-lg  success-grad">Next</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- END - SELFPHOTO KYC MODAL -->
-
-<!-- START - BUSINESS KYC MODAL -->
-<div class="modal fade kyc-modal" id="businessModal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header border-bottom-0">
-        <h2 class="modal-title" id="exampleModalLabel" style="color: red;"><u>Business Verification</u></h2>
-      </div>
-      <form id="businessForm">
-        <div class="modal-body" style="height: 500px;overflow-y: auto;">
-          <h4 class="error" id="businessError" style="color: red;"></h4>
-          <div class="form-group">
-            <label for="businessName">Business Name</label><span style="color:#ff0000">*</span>
-            <input type="text" style="text-transform:uppercase" class="form-control" name="businessName" required id="businessName" placeholder="Enter Business Name">
-            <span class="error" id="businessNameErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="businessAddress">Business Address</label><span style="color:#ff0000">*</span>
-            <input type="text" class="form-control" style="text-transform:uppercase" name="businessAddress" required id="businessAddress" placeholder="Enter Business Address">
-            <span class="error" id="businessAddErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="pincode">Pincode</label><span style="color:#ff0000">*</span>
-            <input type="text" onkeyup="fillStateCity(this)" class="form-control" name="pincode" required id="pincode" placeholder="Enter Pincode">
-            <span class="error" id="pincodeErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="state">State</label><span style="color:#ff0000">*</span>
-            <input type="text" class="form-control" name="state" required id="state" style="text-transform:uppercase" placeholder="Enter State">
-            <span class="error" id="stateErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="city">City</label><span style="color:#ff0000">*</span>
-            <input type="text" class="form-control" name="city" required id="city" placeholder="Enter City" style="text-transform:uppercase">
-            <span class="error" id="cityErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <label for="city">Business Category</label><span style="color:#ff0000">*</span>
-            <select class="form-control" required name="businessCategory" id="businessCategory">
-                <option disabled value="">-- SELECT CATEGORY --</option>
-                <option value="MOBILE STORE">MOBILE STORE</option>
-                <option value="GROCERY STORE">GROCERY STORE</option>
-                <option value="MEDICAL STORE">MEDICAL STORE</option>
-            </select>
-            <span class="error" id="cityErr" style="color:red;"></span>
-          </div>
-          <div class="form-group">
-            <div class="file-upload-wrapper">
-                <label for="shopFrontImage">Upload Shop Front Image</label><span style="color:#ff0000">*</span>
-                <span class="form-text text-muted">(Shop Name Clearly Visible)</span>
-                <span class="upload-file"><i class="fa fa-upload"></i>Upload</span>
-                <input type="file" id="shopFrontImage" required name="shopFrontImage" class="file-upload file-box" accept="image/*" />
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="file-upload-wrapper">
-                <label for="shopInsideImage">Upload Shop Inside Image</label><span style="color:#ff0000">*</span>
-                <span class="form-text text-muted mb-2">Shop owner should be inside the shop</span>
-                <span class="upload-file"><i class="fa fa-upload"></i>Upload</span>
-                <input type="file" id="shopInsideImage" required name="shopInsideImage" class="file-upload file-box" accept="image/*" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer border-top-0 d-flex">
-          <button type="button" id="businessVerify" class="btn btn-lg  success-grad">Next</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- END - BUSINESS KYC MODAL -->
-
-<!-- START - KYC STATUS MODAL -->
-<div class="modal fade kyc-modal" id="kycModal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content" style="min-width: 100vh;min-height: 50vh;">
-      <div class="modal-header border-bottom-0 justify-content-center">
-        <img src="{{ asset('template_assets/assets/images/icon/kyc-header.png') }}" style="max-width: 95px;" alt="kyc under review">
-        <h1 style="color:red;margin-top: 20px;"><u>Your Kyc under review</u></h1>
-      </div>
-      <div class="modal-body">
-         <span style="color:red;" id="kycError"></span>
-         <div class="row kycPanel">
-            <div class="col-2">
-                <img src="{{ asset('template_assets/assets/images/icon/customer-contact.png') }}" alt="Customer contact" style="max-width: 60px;">
-            </div>
-            <div class="col-10" style="margin-top:20px;">
-                <h3>Customer Care : 040-29563154</h3>
-            </div>
-         </div>
-         <div class="row row-space justify-content-center" style="padding: 10px 10px;">
-            <h3>For Early Verification Contact Sales Department :</h3>
-         </div>
-         <div class="row justify-content-center">
-            <img src="{{ asset('template_assets/assets/images/icon/emergency-contact.png') }}" style="max-width: 30px;max-height: 30px;" alt="">
-            <h2>8374913154,9133622161</h2>
-         </div>
-         <div class="row justify-content-center">
-            <img src="{{ asset('template_assets/assets/images/icon/email-round.jpg') }}" style="max-width: 40px;max-height: 28px;" alt="Email contact">
-            <h2>hello@paymamaapp.in</h2>
-         </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- END - KYC STATUS MODAL -->
-
-
 <div class="page-content container-fluid">
     <!-- ============================================================== -->
     @if(Session::has('success_msg'))
@@ -2090,19 +1811,40 @@ ini_set('memory_limit', '-1');
     }
 </script>
 @else
-@if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR'))
+
+@if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR') || ( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')))
 
 <section>
     @endif
     <!-- ============================================================== -->
     <!-- Container fluid Admin starts -->
     <!-- ============================================================== -->
+
     @if( Auth::user()->roleId == Config::get('constants.ADMIN'))
     <div class="page-content container-fluid">
         <!-- ============================================================== -->
         <!-- Card Group  -->
         <!-- ============================================================== -->
         <div class="card-group" style="margin-top:30px">
+            <div class="card p-2 p-lg-3">
+                <div class="p-lg-3 p-2">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-circle btn-danger text-white btn-lg" href="javascript:void(0)">
+                            <i class="mdi mdi-account-convert"></i>
+                        </button>
+                        <div class="ml-4" style="width: 38%;">
+                            <h4 class="font-light">Total Master Distributors</h4>
+                            <div class="progress">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $totalUser ? ($dTCount/$totalUser)*100 : $totalUser }}%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="40"></div>
+                            </div>
+                        </div>
+                        <div class="ml-auto">
+                            <h2 class="display-7 mb-0">{{ $MdTCount }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="card p-2 p-lg-3">
                 <div class="p-lg-3 p-2">
                     <div class="d-flex align-items-center">
@@ -2306,22 +2048,23 @@ ini_set('memory_limit', '-1');
     <!-- ============================================================== -->
     <!-- Container fluid Distributor starts -->
     <!-- ============================================================== -->
-    @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
-    <div class="page-content container-fluid">
+    @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
+    
+    <div class="page-content container-fluid" style="<?Php if( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')) echo "width: 98%;margin-left:20px;"?>">
         <!-- ============================================================== -->
         <!-- Card Group  -->
         <!-- ============================================================== -->
 
         <div class="card-group">
             <div class="card p-2 p-lg-3">
-                <h4 class="font-weight-bold text-dark">Agent List</h4>
+                <h4 class="font-weight-bold" style="text-transform:uppercase;
+	color: #BE1D2C;">Agent List</h4>
 
-                <h4 class="card-title ">Filter</h4>
                 <hr>
                 <div class="p-lg-3 p-2">
                     <form action="/home">
-                        @csrf
                         <div class="row">
+                        @csrf
                             <div class="col-12 col-sm-2">
                                 <div class="form-group">
                                     <label for="exampleInputEmail1" class="font-weight-bold">AGENT ID</label>
@@ -2343,14 +2086,15 @@ ini_set('memory_limit', '-1');
                                     <input type="number" class="form-control" name="agentmobile" placeholder="Mobile No" value="{{request()->input('agentmobile')}}">
                                 </div>
                             </div>
-
+							@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
                             <div class="col-12 col-sm-2">
                                 <div class="form-group">
                                     <label for="exampleInputEmail1" class="font-weight-bold">FOS</label>
                                     <input type="number" class="form-control" placeholder="Fos Id">
                                 </div>
                             </div>
-
+							@endif
+ 
                             <button type="submit" class="btn btn-lg success-grad " style="height: 40px;margin-top:30px;height: calc(2.1rem + .75rem + 2px);">Submit</button>
                     </form>
 
@@ -2368,7 +2112,7 @@ ini_set('memory_limit', '-1');
         }
     </style>
 
-    <div>
+    
 
         <div class="card">
             <div class="card-body">
@@ -2382,14 +2126,21 @@ ini_set('memory_limit', '-1');
                             <thead>
                                 <tr>
                                     <th>S.No</th>
+                                    @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
                                     <th>RETAILER ID</th>
+                                    @endif
+                                    @if( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
+                                    <th>DISTIBUTOR ID</th>
+                                    @endif
                                     <th>FULL NAME</th>
                                     <th>BUSINESS NAME</th>
                                     <th>MOBILE NUMBER</th>
 
                                     <th>PACKAGE</th>
                                     <th>AVAILABLE BALANCE</th>
+                                    @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
                                     <th>MAPPED FOS </th>
+                                    @endif
                                     <th>MINIMUM BALANCE</th>
                                     <th>KYC STATUS</th>
                                     <th>PG STATUS</th>
@@ -2420,7 +2171,10 @@ ini_set('memory_limit', '-1');
                                         @endforeach
                                     </td>
                                     <td>{{ $user->wallet_balance }}</td>
+                                    @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
                                     <td>fos</td>
+                                    @endif
+                                    
                                     <td>{{ $user->min_balance }}</td>
 
 
@@ -2502,14 +2256,21 @@ ini_set('memory_limit', '-1');
                             <tfoot>
                                 <tr>
                                     <th>Sr No</th>
+                                    @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
                                     <th>RETAILER ID</th>
+                                    @endif
+                                    @if( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
+                                    <th>DISTIBUTOR ID</th>
+                                    @endif
                                     <th>FULL NAME</th>
                                     <th>BUSINESS NAME</th>
                                     <th>MOBILE NUMBER</th>
 
                                     <th>PACKAGE</th>
                                     <th>AVAILABLE BALANCE</th>
+                                    @if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
                                     <th>MAPPED FOS </th>
+                                    @endif
                                     <th>MINIMUM BALANCE</th>
                                     <th>KYC</th>
 
@@ -2664,8 +2425,8 @@ ini_set('memory_limit', '-1');
     <!-- ============================================================== -->
     <!-- End footer -->
     <!-- ============================================================== -->
-    
-    @if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR'))
+
+    @if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR') || ( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')))
 </section>
 @endif
 
@@ -2678,7 +2439,7 @@ ini_set('memory_limit', '-1');
 <script src="{{ asset('template_assets/assets/extra-libs/datatables.net-bs4/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('template_assets/dist/js/pages/datatable/datatable-basic.init.js') }}"></script>
 <!-- Datatable plugin ends -->
-<script src="{{ asset('dist\user\js\userList.js') }}"></script>
+<script src="{{ asset('dist/user/js/userList.js') }}"></script>
 
 
 <script>
@@ -2688,468 +2449,10 @@ ini_set('memory_limit', '-1');
         });
     });
 </script>
+
+
+
 @endif
 
-<script>
-    var userRoleId = "{{ Auth::user()->roleId }}";
-    var userId = "{{ Auth::user()->userId }}";
-    var retailorDistributorArr = ['2', '4'];
-    var userAadhaarVerified = "{{ $ekycDetails->aadhaar_kyc }}";
-    var userPanVerified = "{{ $ekycDetails->pan_kyc }}";
-    var useBankVerified = "{{ $ekycDetails->bank_kyc }}";
-    var userPhotoVerified = "{{ $ekycDetails->selfie_kyc }}";
-    var userBusinessVerified = "{{ $ekycDetails->business_kyc }}";
-    var userCompleteKyc = "{{ $ekycDetails->complete_kyc }}";
-    var kycStatus = ['0', '3'];
-    var pendingKycStatus = '1';
-    var allKyc = [userAadhaarVerified,userPanVerified,useBankVerified,userPhotoVerified,userBusinessVerified];
-    
-    $(document).ready(function() {
-        if (retailorDistributorArr.includes(userRoleId)) {
-            if (kycStatus.includes(userAadhaarVerified)) {
-                $('#aadhaarModal').modal('show');
-            } else if (kycStatus.includes(userPanVerified)) {
-                $('#pancardModal').modal('show');
-            } else if (kycStatus.includes(useBankVerified)) {
-                $("#bankModal").modal('show');
-            } else if (kycStatus.includes(userPhotoVerified)) {
-                $("#photoModal").modal('show');
-            } else if (kycStatus.includes(userBusinessVerified)) {
-                $("#businessModal").modal('show');
-            }
-            if (!allKyc.includes('0') && !allKyc.includes('3') && (userAadhaarVerified == pendingKycStatus || userPanVerified == pendingKycStatus || useBankVerified == pendingKycStatus ||
-                userPhotoVerified == pendingKycStatus || userBusinessVerified == pendingKycStatus)) {
-                    $("#kycModal").modal('show');
-            }
-        }
-
-        $("#aadhaarVerify").click(function(e) {
-            aadhaarModalShow();
-        });
-
-        $("#panVerify").click(function(e) {
-            panModalShow();
-        });
-
-        $("#bankVerify").click(function(e) {
-            bankModalShow();
-        });
-
-        $("#photoVerify").click(function(e) {
-            photoModalShow();
-        });
-
-        $("#businessVerify").click(function(e) {
-            businessModalShow();           
-        });
-
-        // $('#kycModal').on('shown.bs.modal', function (e) {
-        //     var kycContent = "";
-        //     kycContent = "<h3> YOUR KYC UNDER REVIEW,OUR TEAM WILL UPDATE YOU. </h3><h3>CUSTOMER CARE : 040-29563154</h3><br><h3>FOR EARLY VERIFICATON CONTACT SALES DEPARTMENT : 8374913154,9133622161.</h3>";
-        //     $("#kycPanel").html(kycContent);
-        // });
-
-        if (userCompleteKyc == 1) {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.ajax({
-                type: 'POST',
-                url: '{{ route("check_verification") }}',
-                data: {'user_id': userId},
-                dataType: 'json',
-                success: function (response) {
-                    console.log(response);
-                }
-            });
-        }
-    });
-
-    $(document).off('change', 'input[type="file"]');
-    $(document).on('change', 'input[type="file"]', function() {
-        if (!$(this).val()) {
-            $(this).parents('.form-group').children('#successMessage').remove();
-        } else {
-            $(this).siblings("span.upload-file").css("background", "#2cd07e");
-            $(this).siblings("span.upload-file").css("color", "#ffffff");
-            $(this).parents('.form-group').append('<span id="successMessage" style="color: green;">File uploaded successfully.</span>');
-        }
-    });
-
-    function validateAadhaar() {
-        var regexp = /^[2-9]{1}[0-9]{3}\s[0-9]{4}\s[0-9]{4}$/; 
-        var ano = $("#adhaarNumber").val().replace(/-/g,' '); 
-
-        if (regexp.test(ano)) { 
-            $("#aadhaarNoErr").html("");
-        } else { 
-            $("#aadhaarNoErr").html("Invalid Aadhaar Number"); 
-        }
-    }
-
-    function addHyphen(e) {
-        var value = $(e).val().split("-").join("");
-        value = value.match(/.{1,4}/g).join("-");
-        $(e).val(value);
-    }
-
-    function validateMobile() {
-        var regexp = /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/; 
-        var mobileNo = document.getElementById("phoneNo").value; 
-
-        if (regexp.test(mobileNo)) { 
-            $("#mobileNoErr").html("");
-        } else { 
-            $("#mobileNoErr").html("Invalid Mobile Number"); 
-        }
-    }
-
-    function validatePAN() {
-        var regexp = /^([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}?$/;
-        var panNo = document.getElementById("panNumber").value;
-
-        if (regexp.test(panNo)) {
-            $('#panNoErr').html("");
-        } else {
-            $('#panNoErr').html("Invalid PAN Number");
-        }
-    }
-
-    function validateBankAccount() {
-        // var regexp = /[0-9]{4}[0-9]{4}[0-9]{2}[0-9]{10}/;
-        var regexp = /[0-9]{9,18}/;
-        var bankNo = document.getElementById("bankAccountNo").value;
-
-        if (regexp.test(bankNo)) {
-            $('#accNoErr').html("");
-        } else {
-            $('#accNoErr').html("Invalid Bank Account Number");
-        }
-    }
-
-    function validateIFSCCode() {
-        var regexp = /^[A-Za-z]{4}\d{7}$/;
-        var ifscCode = document.getElementById("ifscCode").value;
-
-        if (regexp.test(ifscCode)) {
-            $('#ifscCodeErr').html("");
-        } else {
-            $('#ifscCodeErr').html("Invalid IFSC Code");
-        }
-    }
-
-    function userKycStatus() {
-        $.ajax({
-            type: 'GET',
-            url: '{{ route("userKycStatus") }}',
-            dataType: 'json',
-            success: function (response) {
-                if (response.code == 200) {
-                    userKycDetails = response['data'];
-                    userAadhaarVerified = userKycDetails['aadhaar_kyc'];
-                    userPanVerified = userKycDetails['pan_kyc'];
-                    useBankVerified = userKycDetails['bank_kyc'];
-                    userPhotoVerified = userKycDetails['selfie_kyc'];
-                    userBusinessVerified = userKycDetails['business_kyc'];
-                } else {
-                    $("#kycError").html("Something went to wrong! Please contact 040-29563154 or www.paymamaapp.in");
-                }
-            },
-            error: function (response) {
-                $("#kycError").html("Something went to wrong! Please contact 040-29563154 or www.paymamaapp.in");
-            }
-        });
-    }
-
-    function moveOnNextKyc(currentKyc) {
-        var kyc = ['aadhaarVerify', 'panVerify', 'bankVerify', 'photoVerify', 'businessVerify'];
-        var kycModal = {'aadhaarVerify': "aadhaarModal", "panVerify": "pancardModal", "bankVerify": "bankModal", "photoVerify": "photoModal", "businessVerify": "businessModal"};
-        if (kyc[($.inArray(currentKyc, kyc) + 1) % kyc.length]) {
-            var nextKyc = kyc[($.inArray(currentKyc, kyc) + 1) % kyc.length];
-            if (nextKyc == "aadhaarVerify" && kycStatus.includes(userAadhaarVerified)) {
-                $("#aadhaarModal").modal('show');
-                return;
-            } else if (nextKyc == "panVerify" && kycStatus.includes(userPanVerified)) {
-                $("#pancardModal").modal('show');
-                return;
-            } else if (nextKyc == "bankVerify" && kycStatus.includes(useBankVerified)) {
-                $("#bankModal").modal('show');
-                return;
-            } else if (nextKyc == "photoVerify" && kycStatus.includes(userPhotoVerified)) {
-                $("#photoModal").modal('show');
-                return;
-            } else if (nextKyc == "businessVerify" && kycStatus.includes(userBusinessVerified)) {
-                $("#businessModal").modal('show');
-                return;
-            }
-            
-            if (kycStatus.includes(userAadhaarVerified) || kycStatus.includes(userPanVerified) || kycStatus.includes(useBankVerified) ||
-                kycStatus.includes(userPhotoVerified) || kycStatus.includes(userBusinessVerified)) {
-                moveOnNextKyc(nextKyc);
-            } else {
-                $("#kycModal").modal('show');
-            }
-        } else {
-            userKycStatus();
-            $("#kycModal").modal('show');
-        }
-    }
-
-    function aadhaarModalShow() {
-        if ($("#aadhaarForm")[0].checkValidity()) {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            // e.preventDefault();
-            var formData = new FormData($("#aadhaarForm")[0]);
-            formData.append("userId", "{{ Auth::user()->userId }}");
-            var aadhaarNumber = jQuery('#adhaarNumber').val().replace(/\s/g,'');
-            aadhaarNumber = jQuery('#adhaarNumber').val().replace(/-/g,'');
-            formData.set("adhaarNumber", aadhaarNumber);
-            var type = "POST";
-            var ajaxurl = "{{ route('aadhaarVerify') }}";
-            $.ajax({
-                type: type,
-                url: ajaxurl,
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function (response) {
-                    if (response.code == 200) {
-                        userKycStatus();
-                        $("#aadhaarError").html(response.message);
-                        $("#aadhaarError").css("color", "#008000");
-                        setTimeout(function() {
-                            $("#aadhaarModal").modal('hide');
-                            moveOnNextKyc('aadhaarVerify');
-                            // $("#pancardModal").modal('show');
-                        }, 2000);
-                    } else {
-                        $("#aadhaarError").html(response.response);
-                    }
-                },
-                error: function (response) {
-                    $("#aadhaarError").html("Something went to wrong!");
-                }
-            });
-        } else {
-            $("#aadhaarForm")[0].reportValidity();
-        }
-    }
-
-    function panModalShow() {
-        if ($("#panForm")[0].checkValidity()) {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            // e.preventDefault();
-            var formData = new FormData($("#panForm")[0]);
-            formData.append("userId", "{{ Auth::user()->userId }}");
-            formData.set("panNo", jQuery('#panNumber').val().replace(/\s/g,''));
-            var type = "POST";
-            var ajaxurl = "{{ route('panVerify') }}";
-            console.log(formData);
-            $.ajax({
-                type: type,
-                url: ajaxurl,
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function (response) {
-                    if (response.code == 200) {
-                        userKycStatus();
-                        $("#panError").html(response.message);
-                        $("#panError").css("color", "#008000");
-                        setTimeout(function() {
-                            $("#pancardModal").modal('hide');
-                            moveOnNextKyc('panVerify');
-                            // $("#bankModal").modal('show');
-                        }, 1000);
-                    } else {
-                        $("#panError").html(response.message);
-                    }
-                },
-                error: function (response) {
-                    $("#panError").html("Something went to wrong!");
-                }
-            });
-        } else {
-            //Validate Form
-            $("#panForm")[0].reportValidity();
-        }
-    }
-
-    function bankModalShow() {
-        if ($("#bankForm")[0].checkValidity()) {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            // e.preventDefault();
-            var formData = new FormData($("#bankForm")[0]);
-            formData.append("userId", "{{ Auth::user()->userId }}");
-            formData.set("accNo", jQuery('#bankAccountNo').val().replace(/\s/g,''));
-            formData.set("accIfsc", jQuery('#ifscCode').val());
-            var type = "POST";
-            var ajaxurl = "{{ route('bankVerify') }}";
-            $.ajax({
-                type: type,
-                url: ajaxurl,
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function (response) {
-                    if (response.code == 200) {
-                        userKycStatus();
-                        $("#bankError").html(response.message);
-                        $("#bankError").css("color", "#008000");
-                        setTimeout(function() {
-                            $("#bankModal").modal('hide');
-                            moveOnNextKyc('bankVerify');
-                            // $("#photoModal").modal('show');
-                        }, 1000);
-                    } else {
-                        $("#bankError").html(response.message);
-                    }
-                },
-                error: function (response) {
-                    $("#bankError").html("Something went to wrong!");
-                }
-            });
-        } else {
-            //Validate Form
-            $("#bankForm")[0].reportValidity();
-        }
-    }
-
-    function photoModalShow() {
-        if ($("#photoForm")[0].checkValidity()) {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            // e.preventDefault();
-            var formData = new FormData($("#photoForm")[0]);
-            formData.append("userId", "{{ Auth::user()->userId }}");
-            var type = "POST";
-            var ajaxurl = "{{ route('photoVerify') }}";
-            $.ajax({
-                type: type,
-                url: ajaxurl,
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function (response) {
-                    if (response.code == 200) {
-                        userKycStatus();
-                        $("#phptoError").html(response.message);
-                        $("#phptoError").css("color", "#008000");
-                        setTimeout(function() {
-                            $("#photoModal").modal('hide');
-                            moveOnNextKyc('photoVerify');
-                            // $("#businessModal").modal('show');
-                        }, 1000);
-                    } else {
-                        $("#phptoError").html(response.message);
-                    }
-                },
-                error: function (response) {
-                    $("#phptoError").html("Something went to wrong!");
-                }
-            });
-        } else {
-            //Validate Form
-            $("#photoVerify")[0].reportValidity();
-        }
-    }
-
-    function businessModalShow() {
-        if ($("#businessForm")[0].checkValidity()) {
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                // e.preventDefault();
-                var formData = {
-                    userId: "{{ Auth::user()->userId }}",
-                    businessName: jQuery('#businessName').val(),
-                    businessAddress: jQuery('#businessAddress').val(),
-                    pincode: jQuery('#pincode').val(),
-                    state: jQuery('#state').val(),
-                    city: jQuery('#city').val(),
-                    businessCategory: jQuery('#businessCategory').val(),
-                    shopFrontImage: jQuery('#shopFrontImage').val(),
-                    shopInsideImage: jQuery('#shopInsideImage').val()
-                };
-                var type = "POST";
-                var ajaxurl = "{{ route('businessVerify') }}";
-                $.ajax({
-                    type: type,
-                    url: ajaxurl,
-                    data: formData,
-                    dataType: 'json',
-                    success: function (response) {
-                        userKycStatus();
-                        if (response.code == 200) {
-                            $("#businessError").html(response.message);
-                            $("#businessError").css("color", "#008000");
-                            setTimeout(function() {
-                                $("#businessModal").modal('hide');
-                                userKycStatus();
-                                $("#kycModal").modal('show');
-                            }, 1000);
-                        } else {
-                            $("#businessError").html(response.message);
-                        }
-                    },
-                    error: function (response) {
-                        $("#businessError").html("Something went to wrong!");
-                    }
-                });
-            } else {
-                //Validate Form
-                $("#businessVerify")[0].reportValidity();
-            }
-    }
-
-    function fillStateCity(e) {
-        if ($(e).val().length == 6) {
-            var pincodeAPIUrl = "{{ route('pincode') }}";
-            $.ajax({
-                url: pincodeAPIUrl,
-                data: {pincode: $(e).val().trim()},
-                type: "GET",
-                success: function(response) {
-                    if (response.code == 200) {
-                        console.log(response.data.state_name);
-                        $("#state").val(response.data.state_name);
-                        $("#city").val(response.data.city_name);
-                        $("#pincodeErr").html("");
-                    } else {
-                        $("#state").val("");
-                        $("#city").val("");
-                        $("#pincodeErr").html("Something went to wrong!");
-                    }
-                },
-                error: function() {
-                    $("#pincodeErr").html("Enter valid pincode");
-                }
-            });
-        }
-    }
-</script>
 
 @endsection

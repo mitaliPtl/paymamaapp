@@ -8,14 +8,14 @@
 <link href="{{ asset('template_assets/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css') }}" rel="stylesheet">
 <link rel="stylesheet" type="text/css"
         href="{{ asset('template_assets/assets/extra-libs/datatables.net-bs4/css/responsive.dataTables.min.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('template_assets\other\css\flatpickr.min.css') }}">
-<link rel="stylesheet" href="{{ asset('dist\reports\css\reports.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('template_assets/other/css/flatpickr.min.css') }}">
+<link rel="stylesheet" href="{{ asset('dist/reports/css/reports.css') }}">
 
-@if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR'))
+@if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR') ||  Auth::user()->roleId != Config::get('constants.MASTER_DISTRIBUTOR'))
 <section>
 @endif
-@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
-<div class="page-content container-fluid">
+@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
+<div class="page-content container-fluid" style="width: 98%; margin-left: 20px;height:790px !important;">
 @endif
 <style>
     th {
@@ -27,7 +27,7 @@
     <div class="col-12">
         <div class="material-card card">
             <div class="card-body">
-                <h4 class="card-title">{{ $pageName }}  Credit Report</h4>
+                <h4 class="card-title" style="font-weight:bold;color:#BE1D2C;">{{ $pageName }}  CREDIT REPORT</h4>
                 <div class="row">
                     <div class="col-12 text-right mb-2">
                        
@@ -63,8 +63,8 @@
                                 </div>
                                 @endforeach
 
-                                <div class="filter-elements">
-                                    <button class="btn btn-md btn-outline-primary success-grad" id="filter-submit-btn" type="submit"><i class="fa fa-filter"></i> Filter</button>
+                                 <div class="filter-elements">
+                                    <button class="btn btn-lg btn-outline-primary success-grad" style="height: calc(2.1rem + .75rem + 2px);" id="filter-submit-btn" type="submit"><i class="fa fa-filter"></i> Filter</button>
                                 </div>
                             </div>
                         </form>
@@ -85,32 +85,45 @@
                 </div>
                 <br>
                 <div class="table-responsive">
-                    <table id="recharge-report-table" class="table table-striped table-sm border is-data-table">
+                    <table id="recharge-report-table" class="table display table-bordered table-striped no-wrap">
                         <thead>
                             <tr>
                                 <th>Sr No</th>
                                 <!-- <th>Name</th> -->
-                                <th>Transaction Date</th>
-                                <!-- <th>Mobile</th> -->
-                                <th>Transfer Type</th>
-                                <th>CR/DR</th>
-                                <th>Amount</th>
-                                <th>Credit Balance</th>
-                                    
+                                <th>DATE & TIME</th>
+                                <th>ORDER ID</th> 
+                                <th>Type</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                                <th>REMAINING BALANCE AMOUNT</th>
+                                
                                
                             </tr>
                         </thead>
                         <tbody>
+                        <?php
+                           // print_r($records);
+                        ?>
                             @foreach($records as $index => $record_value)
                                 <tr>
                                     <td>{{ $index+1 }}</td>
                                     
                                     <td>{{ date('d/m/y H:i:s',strtotime($record_value->trans_date)) }}</td>
-                                    
-                                    <td>{{ $record_value->transfer_type }}</td>
+                                    <td>{{ $record_value->order_id }}</td>
                                     <td>{{ $record_value->transaction_type }}</td>
-                                    <td>{{ $record_value->amount }}</td>
+                                      
+                                    @if($record_value->transaction_type == 'DEBIT')
+                                        <td>{{ $record_value->amount }}</td>
+                                    @else
+                                        <td>0</td>
+                                    @endif 
+                                    @if($record_value->transaction_type == 'CREDIT')
+                                        <td>{{ $record_value->amount }}</td>
+                                    @else
+                                        <td>0</td>
+                                    @endif 
                                     <td>{{ $record_value->balance }}</td>   
+                                    
                                     
                                 </tr>
                             @endforeach
@@ -118,12 +131,15 @@
                         <tfoot>
                             <tr>
                                 <th>Sr No</th>
-                                <th> Transaction Date</th>
-                                <th>Transfer Type</th>
-                                <th>CR/DR</th>
-                                <th>Amount</th>
-                                <th>Credit Balance</th>
-                                
+                                <!-- <th>Name</th> -->
+                                <th>DATE & TIME</th>
+                                <th>ORDER ID</th> 
+                                <th>Type</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                                <th>REMAINING BALANCE AMOUNT</th>
+                                    
+                               
                             </tr>
                         </tfoot>
                     </table>
@@ -136,11 +152,11 @@
 
 
 
-@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
+@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
 </div>
 @endif
 
-@if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR'))
+@if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId != Config::get('constants.MASTER_DISTRIBUTOR'))
 </section>
 @endif
 
@@ -150,9 +166,8 @@
 <script src="{{ asset('template_assets/assets/extra-libs/datatables.net-bs4/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('template_assets/dist/js/pages/datatable/datatable-basic.init.js') }}"></script>
 <!-- Datatable plugin ends -->
-<script src="{{ asset('template_assets\other\js\flatpickr') }}"></script>
+<script src="{{ asset('template_assets/other/js/flatpickr.js') }}"></script>
 <script src="{{ asset('template_assets/assets/libs/jquery-validation/dist/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('dist\reports\js\rechargeReport.js') }}"></script>
-<!-- <script src="{{ asset('dist\complaint\js\complaint.js') }}"></script> -->
 
 @endsection
