@@ -14,6 +14,7 @@ use App\StoreCategory;
 use App\TransactionDetail;
 use App\User;
 use App\WalletTransactionDetail;
+use App\PackageCommissionDetail;
 use Auth;
 use Config;
 use DB;
@@ -34,7 +35,8 @@ class TransactionReportsController extends Controller
      */
     public function index(Request $request)
     {
-  
+
+       
         $rechargeReports_forinvoice=[];
         $user_dtls = Auth::user();
       
@@ -50,11 +52,14 @@ class TransactionReportsController extends Controller
         $rechargeReportTH = $this->setTableHeader($loggedInRole, $serviceType);
         
        
-        $rechargeReports = $this->filter($request);
+      $rechargeReports = $this->filter($request);
+      
         
         
-    //return $rechargeReports->get();
-        
+    // print_r($rechargeReports->toSql());
+       
+      // print_r($rechargeReports->get()); 
+                     
        
         if ( ($serviceType == 'MONEY_TRANSFER') || ($serviceType == 'UPI_TRANSFER')  || ($serviceType == 'AEPS')  || ($serviceType == 'AADHAR_PAY') || ($serviceType == 'Mini Statement') || ($serviceType == 'BALANCE_INQUIRY')) {
             // $rechargeReports = $rechargeReports->where('tbl_transaction_dtls.transaction_type', '!=', 'BANK_VERIFICATION');
@@ -70,29 +75,35 @@ class TransactionReportsController extends Controller
         if ($request->has('service_type')) {
             
             if ($serviceType == Config::get('constants.RECHARGE')['NAME']) {
+                
                 $type1 = Config::get('constants.RECHARGE')['VALUE']['MOBILE'];
                 $type2 = Config::get('constants.RECHARGE')['VALUE']['DTH'];
 
                 $rechargeReports = $rechargeReports
                     ->leftJoin('tbl_services_type', 'tbl_transaction_dtls.service_id', '=', 'tbl_services_type.service_id')
-                    ->whereIn('tbl_services_type.alias', [
+                     ->whereIn('tbl_services_type.alias', [
                         Config::get('constants.SERVICE_TYPE_ALIAS.MOBILE_PREPAID'),
                         Config::get('constants.SERVICE_TYPE_ALIAS.MOBILE_POSTPAID'),
                         Config::get('constants.SERVICE_TYPE_ALIAS.DTH'),
                     ])
-                    ->where('tbl_transaction_dtls.id_deleted', Config::get('constants.NOT-DELETED'))
+                    ->where('tbl_transaction_dtls.id_deleted', Config::get('constants.NOT-DELETED'));
+                    
+                    //->where('tbl_transaction_dtls.id_deleted', Config::get('constants.NOT-DELETED'))
                     // ->leftJoin('tbl_complaints', 'tbl_transaction_dtls.order_id', '=', 'tbl_complaints.order_id')
-
-                    ->get();
+                   // $rechargeReports = $rechargeReports
+                    //->leftJoin('tbl_services_type', 'tbl_transaction_dtls.service_id', '=', 'tbl_services_type.service_id')
+                    $rechargeReports=$rechargeReports->get();
+                    
                     
                 $operators = $operators
                     ->leftJoin('tbl_services_type', 'tbl_operator_settings.service_id', '=', 'tbl_services_type.service_id')
                     ->whereIn('tbl_services_type.alias', [
                         Config::get('constants.SERVICE_TYPE_ALIAS.MOBILE_PREPAID'),
-                        Config::get('constants.SERVICE_TYPE_ALIAS.MOBILE_POSTPAID'),
+                        //Config::get('constants.SERVICE_TYPE_ALIAS.MOBILE_POSTPAID'),
                         Config::get('constants.SERVICE_TYPE_ALIAS.DTH'),
                     ])->get();
                    
+                   // for laravel 5.8^
             } else {
                 
                 
@@ -105,31 +116,31 @@ class TransactionReportsController extends Controller
                     if($serviceType != 'AEPS' && $serviceType != 'AADHAR_PAY' &&  $serviceType != 'Mini_Statement' &&  $serviceType != 'BALANCE_INQUIRY') {
                     $rechargeReports = $rechargeReports->leftJoin('tbl_dmt_benificiary_dtls', 'tbl_transaction_dtls.recipient_id', '=', 'tbl_dmt_benificiary_dtls.recipient_id');
                     }
-                    else
-                    {
-                        
-                    }
-                    $rechargeReports = $rechargeReports->leftJoin('tbl_users', 'tbl_transaction_dtls.user_id', '=', 'tbl_users.userId')
+                   
+                    //$rechargeReports = $rechargeReports->leftJoin('tbl_users', 'tbl_transaction_dtls.user_id', '=', 'tbl_users.userId')
                     //->leftJoin('tbl_bbps_list', 'tbl_transaction_dtls.billerID', '=', 'tbl_bbps_list.billerId')
 
                      //->leftJoin('tbl_complaints', 'tbl_transaction_dtls.order_id', '=', 'tbl_complaints.order_id')
                      //->leftJoin('tbl_template', 'tbl_complaints.template_id', '=', 'tbl_template.template_id')
-                    ->where('tbl_services_type.alias', Config::get($consType))
-                    ->where('tbl_transaction_dtls.id_deleted', Config::get('constants.NOT-DELETED'))->get();
-                
+                    //->where('tbl_services_type.alias', Config::get($consType))
+                    //->where('tbl_transaction_dtls.id_deleted', Config::get('constants.NOT-DELETED'))->get();
+                $rechargeReports=$rechargeReports->get();
                 $rechargeReports_forinvoice = $rechargeReports;
-
+                
                 $operators = $operators
                     ->leftJoin('tbl_services_type', 'tbl_operator_settings.service_id', '=', 'tbl_services_type.service_id')
                     ->where('tbl_services_type.alias', Config::get($consType))->get();
-                    
-            }
+             }
         } else {
             
-            $rechargeReports->get();
+            $rechargeReports=$rechargeReports->get();
+                
+                
         }
-      
+        //print_r($rechargeReports);
+        
         $rechargeReports = $this->modifyRechargeReport($rechargeReportTH, $rechargeReports);
+       
         
        
         $rechargeReports = isset($rechargeReports) ? $rechargeReports : [];
@@ -146,13 +157,15 @@ class TransactionReportsController extends Controller
         $templates = $this->getTemplateByService($serviceType);        
       
       $total = $this->calcTotalCharges($rechargeReports);
+      
+      
     //   if ($serviceType == 'MONEY_TRANSFER') {
     //     $rechargeReports = $this->modifyRechargeReport_new($rechargeReports, $rechargeReports_forinvoice);
           
     //   }
         // print_r($total);
         // exit();
-        
+       
         return view('modules.reports.report', compact('pageName', 'filtersList', 'rechargeReportTH', 'rechargeReports', 'apiSettings', 'servicesTypes', 'operators', 'request', 'rechargeReports_forinvoice', 'user_dtls','templates', 'total'));
     }
 
@@ -173,7 +186,24 @@ class TransactionReportsController extends Controller
             $totalChargeAmount =0;
             // $totalRtCom =0;
             // $totalAmt =0;
+            $pending=0;
+            $sucess=0;
+            $failure=0;
+            $totalMdCom =0;
+            
             foreach ($reports as $key => $report) {
+                
+                if(@$report['order_status'] == 'SUCCESS'){
+                        $sucess += isset($report['total_amount']) ? ((float) $report['total_amount']) : 0;    
+                    }
+                    if(@$report['order_status'] == 'PENDING'){
+                        $pending += isset($report['total_amount']) ? ((float) $report['total_amount']) : 0;
+                            
+                    }
+                     if(@$report['order_status'] == 'FAILED'){
+                        $failure += isset($report['total_amount']) ? ((float) $report['total_amount']) : 0;    
+                    }
+                    
                 if ( isset($report['order_status']) && ( ($report['order_status'] == 'SUCCESS') || ($report['order_status'] == 'PENDING') ) ){
                     # code...
                 
@@ -186,8 +216,11 @@ class TransactionReportsController extends Controller
                     $totalCashback += isset($report['Cashback']) ? ((float) $report['Cashback']) : 0;
                     $totalTDSamount += isset($report['TDSamount']) ? ((float) $report['TDSamount']) : 0;
                     $totalChargeAmount += isset($report['charge_amount']) ? ((float) $report['charge_amount']) : 0;
+                    $totalMdCom += isset($report['master_distributor_commission']) ? ((float) $report['master_distributor_commission']) : 0;
                     // $totalRtCom += isset($report['retailer_commission']) ? ((float) $report['retailer_commission']) : 0;
                     // $totalAmt += isset($report['total_amount']) ? ((float) $report['total_amount']) : 0;
+                    
+                    
                 }
             }
 
@@ -202,6 +235,10 @@ class TransactionReportsController extends Controller
             $response['TDSamount'] = round($totalTDSamount,2);
             //bill payment
             $response['charge_amount'] = round($totalChargeAmount,2);
+            $response['sucess'] = $sucess;
+            $response['pending'] = $pending;
+            $response['failure'] = $failure;
+            $response['total_md_comm'] = round($totalMdCom,2);
             
             // $response['total_rt_comm'] = round($totalRtCom,2);
             // $response['total_amount'] = round($totalAmt,2);
@@ -266,6 +303,10 @@ class TransactionReportsController extends Controller
 
             $strAppend = "_DIS_FILTER";
 
+        } else if ($loggedInRole == Config::get('constants.MASTER_DISTRIBUTOR')) {
+
+            $strAppend = "_MD_FILTER";
+
         } else if ($loggedInRole == Config::get('constants.RETAILER')) {
 
             $strAppend = "_RT_FILTER";
@@ -298,6 +339,10 @@ class TransactionReportsController extends Controller
 
             $strAppend = "_DIS_TD";
 
+        }  else if ($loggedInRole == Config::get('constants.MASTER_DISTRIBUTOR')) {
+
+            $strAppend = "_MD_TD";
+
         } else if ($loggedInRole == Config::get('constants.RETAILER')) {
 
             $strAppend = "_RT_TD";
@@ -316,21 +361,22 @@ class TransactionReportsController extends Controller
      */
     public function filter($request)
     {
-        $tranDtls = TransactionDetail::where('id_deleted', Config::get('constants.NOT-DELETED'))
+        
+        $tranDtls = TransactionDetail::where('tbl_transaction_dtls.id_deleted', Config::get('constants.NOT-DELETED'))
                     ->leftJoin('tbl_api_settings', 'tbl_transaction_dtls.api_id', '=', 'tbl_api_settings.api_id')
-            ->orderBy('tbl_transaction_dtls.id','DESC');
+                    ->orderBy('tbl_transaction_dtls.id','DESC');
         
         if ($request->has('from_date') && isset($request->from_date)) {
             $fromDate = $request->get('from_date');
-            $tranDtls->whereDate('trans_date', '>=', $fromDate);
+            $tranDtls->whereDate('tbl_transaction_dtls.trans_date', '>=', $fromDate);
         } else {
             $fromDate = now();
-            $tranDtls->whereDate('trans_date', $fromDate);
+            $tranDtls->whereDate('tbl_transaction_dtls.trans_date', $fromDate);
         }
 
         if ($request->has('to_date') && isset($request->to_date)) {
             $toDate = $request->get('to_date');
-            $tranDtls->whereDate('trans_date', '<=', $toDate);
+            $tranDtls->whereDate('tbl_transaction_dtls.trans_date', '<=', $toDate);
         }
 
         if (isset($request->api_id) && $request->api_id) {
@@ -348,18 +394,27 @@ class TransactionReportsController extends Controller
         if (isset($request->order_status) && $request->order_status) {
             $tranDtls->where('tbl_transaction_dtls.order_status', $request->get('order_status'));
         }
-
+        //DB::enableQueryLog();
         if (Auth::id() != Config::get('constants.ADMIN')) {
             if (Auth::id()) {
                 $childResponse = User::where('parent_user_id', Auth::id())->pluck('userId');
+                
                 if (count($childResponse) > 0) {
                     $childResponse = $childResponse->toArray();
+                    $subChildResponse = User::whereIn('parent_user_id', $childResponse)->pluck('userId');
+                    if(count($subChildResponse) > 0){
+                        $subChildResponse = $subChildResponse->toArray();
+                        for($i=0; $i<count($subChildResponse); $i++){
+                            array_push($childResponse, $subChildResponse);    
+                        }
+                    }
                     array_push($childResponse, Auth::id());
-                    $tranDtls->whereIn('tbl_transaction_dtls.user_id', $childResponse);
-                } else {
+                     $tranDtls->whereIn('tbl_transaction_dtls.user_id', $childResponse);    
+                }else{
                     $tranDtls->where('tbl_transaction_dtls.user_id', Auth::user()->userId);
                 }
             }
+            
         } else {
             if (isset($request->username_mobile) && $request->username_mobile) {
                 $userId = User::where('mobile', $request->username_mobile)
@@ -368,8 +423,9 @@ class TransactionReportsController extends Controller
                     $tranDtls = $tranDtls->where('tbl_transaction_dtls.user_id', $userId);
                 }
             }
+            
         }
-
+        
         return $tranDtls;
     }
 
@@ -380,11 +436,18 @@ class TransactionReportsController extends Controller
     {
         
         $result = [];
+        
         if ($reportList) {
+          // print_r($reportList[0]);
+            $i=0;
             foreach ($reportList as $repInd => $report) {
+                
+                $i++;
                 $keyList = [];
                 $reportList[$repInd]['mobile'] = "";
                 $reportList[$repInd]['response'] = "";
+                
+                
                 foreach ($tableHeads as $headInd => $head) {
                     $keyList['id'] = $report['id'];
                     
@@ -444,7 +507,9 @@ class TransactionReportsController extends Controller
 
                         if ($head['label'] == "service_id") {
                             // $label_val = $this->getResponseByOrdId($report['order_id']);
-                            $label_val = isset(ServicesType::where('service_id', $report[$head['label']])->pluck('service_name')[0]) ? ServicesType::where('service_id', $report[$head['label']])->pluck('service_name')[0] : '';
+                            $label_val = isset(ServicesType::where('service_id', $report[$head['label']])->pluck(
+                            'service_name')[0]) ? ServicesType::where('service_id', $report[$head['label']])->pluck(
+                            'service_name')[0] : '';
                         }
                         if ($head['label'] == "bank_name") {
                             if ($report['bank_code']) {
@@ -468,6 +533,9 @@ class TransactionReportsController extends Controller
                             $label_val = "ifsc";
                         }
                         
+                        
+                       
+                        
 
                         // if ($head['label'] == "trans_date") {
                         //     $label_val = substr($report['trans_date'], 0, 8);
@@ -476,8 +544,31 @@ class TransactionReportsController extends Controller
                         $keyList[$head['label']] = $label_val;
                     }
                     elseif ($head['label'] == "retailer_id") {
-                            $label_val = User::getUsernameById($report['user_id']);
-                            $keyList[$head['label']]=$label_val;
+                            $label_val1 = User::getUsernameById($report['user_id']);
+                            $label_val2 = User::getStoreNameById($report['user_id']);
+                            $label_val3 = User::getMobilenoById($report['user_id']);
+                            
+                            $keyList[$head['label']]="".$label_val1." (".$label_val2.") ".$label_val3." ";
+                            //$keyList[$head['label']]="";
+                        }
+                        elseif ($head['label'] == "distributor_id") {
+                            $label_val=User::getParentId($report['user_id']);
+                            //print_r($label_val);
+                            $label_val1 = User::getUsernameById($label_val);
+                            $label_val2 = User::getStoreNameById($label_val);
+                            $label_val3 = User::getMobilenoById($label_val);
+                            
+                            $keyList[$head['label']]="".$label_val1." (".$label_val2.") ".$label_val3."";
+                        }elseif ($head['label'] == "master_distributor_id") {
+                            $label_val=User::getParentId($report['user_id']);
+                            $label_val=User::getParentId($label_val);
+                            
+                            //print_r($label_val);
+                            $label_val1 = User::getUsernameById($label_val);
+                            $label_val2 = User::getStoreNameById($label_val);
+                            $label_val3 = User::getMobilenoById($label_val);
+                            
+                            $keyList[$head['label']]="".$label_val1." (".$label_val2.") ".$label_val3."";
                         }
                        elseif ($head['label'] == "api_id") {
                            $id=$report['api_id'];
@@ -495,6 +586,7 @@ class TransactionReportsController extends Controller
                     
                     elseif ($head['label'] == 'customer_name') {
                         $label_val = "";
+                        
                         if (isset($report['response_msg']) && $report['response_msg'] ) {
                            $resp_msg = json_decode( $report['response_msg'] ,true);
                            if (isset($resp_msg['RespCustomerName']) && $resp_msg['RespCustomerName'] ) {
@@ -502,7 +594,18 @@ class TransactionReportsController extends Controller
                            }
                         }
                         $keyList[$head['label']] = $label_val;
-                    }
+                    }elseif ($head['label'] == "rt_commission") {
+                                $keyList[$head['label']] = $report['retailer_commision'];
+                                    
+                            
+                      }elseif ($head['label'] == "dt_commission") {
+                                $keyList[$head['label']] = $report['distributor_commision'];
+                                    
+                            
+                      } elseif ($head['label'] == "md_commission") {
+                                $keyList[$head['label']] = $report['master_distributor_commission'];
+                           
+                      }   
                     else {
                         
                         $keyList[$head['label']] = "";
@@ -546,7 +649,18 @@ class TransactionReportsController extends Controller
         }
         return $result;
     }
-
+    
+    public function getPackageId($id)
+    {
+        $result = "";
+        if ($id && $id != "") {
+            $user = User::find((int) $id);
+            if ($user) {
+                $result = $user->package_id;
+            }
+        }
+        return $result;
+    }
     /**
      * Get Api Setting name by providing ID
      */

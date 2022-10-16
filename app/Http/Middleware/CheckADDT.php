@@ -17,7 +17,7 @@ class CheckADDT
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.DISTRIBUTOR')) || (Auth::check() && Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.SYSTEM_ADMIN'))) {
+        if (Auth::check() && (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.DISTRIBUTOR')) || (Auth::check() && Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.SYSTEM_ADMIN')) || (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR'))) {
             return $next($request);
         }
         return redirect('/permission-denied');

@@ -128,11 +128,18 @@ class ComplaintController extends Controller
 
             $strAppend = "_ADMIN_TD";
 
-        } else if ($loggedInRole == Config::get('constants.DISTRIBUTOR')) {
+        } else if ($loggedInRole == Config::get('constants.MASTER_DISTRIBUTOR')) {
+
+            $strAppend = "_MD_TD";
+
+        }
+        else if ($loggedInRole == Config::get('constants.DISTRIBUTOR')) {
 
             $strAppend = "_DIS_TD";
 
-        } else if ($loggedInRole == Config::get('constants.RETAILER')) {
+        }
+        
+        else if ($loggedInRole == Config::get('constants.RETAILER')) {
 
             $strAppend = "_RT_TD";
         }

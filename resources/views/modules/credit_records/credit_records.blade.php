@@ -7,14 +7,14 @@
 <link href="{{ asset('template_assets/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css') }}" rel="stylesheet">
 <link rel="stylesheet" type="text/css"
         href="{{ asset('template_assets/assets/extra-libs/datatables.net-bs4/css/responsive.dataTables.min.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('template_assets\other\css\flatpickr.min.css') }}">
-<link rel="stylesheet" href="{{ asset('dist\reports\css\reports.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('template_assets/other/css/flatpickr.min.css') }}">
+<link rel="stylesheet" href="{{ asset('dist/reports/css/reports.css') }}">
 
 @if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR'))
 <section>
 @endif
-@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
-<div class="page-content container-fluid">
+@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
+<div class="page-content container-fluid" style="width: 98%; margin-left: 20px;height:790px !important;">
 @endif
 <style>
     th {
@@ -26,7 +26,7 @@
     <div class="col-12">
         <div class="material-card card">
             <div class="card-body">
-                <h4 class="card-title">{{ $pageName }}  Credit Report</h4>
+                <h4 class="card-title" style="font-weight:bold;color:#BE1D2C;">{{ $pageName }}  CREDIT REPORT</h4>
                 <div class="row">
                     <div class="col-12 text-right mb-2">
                        
@@ -84,15 +84,11 @@
                 </div>
                 <br>
                 <div class="table-responsive">
-                    <table id="recharge-report-table" class="table table-striped table-sm border is-data-table">
+                    <table id="recharge-report-table" class="table display table-bordered table-striped no-wrap">
                         <thead>
                             <tr>
                                 <th>Sr No</th>
-                                <th>Store Name</th>
-                                <th>Username</th>
-                                <!-- <th>Date</th> -->
-                                <th>Mobile</th>
-                               
+                                <th>USER DETAILS</th>
                                 <th>Credit Balance</th>
                                 <th>Action</th>
                                
@@ -102,18 +98,13 @@
                             @foreach($records as $index => $record_value)
                                 <tr>
                                     <td>{{ $index+1 }}</td>
-                                    <td>{{ $record_value->store_name }}</td>
-                                    <td>{{ $record_value->username }}</td>
-                                    <!-- <td>{{ date('d/m/y H:i:s',strtotime($record_value->trans_date)) }}</td> -->
-                                    <td>{{ $record_value->mobile }}</td>
-                                    
-                                   
+                                    <td>{{ $record_value->username }} ( {{ $record_value->store_name }} ) {{ $record_value->mobile }}</td>
                                     <td>{{ $record_value->distributor_credit }}</td>
 
                                     
                                     <td>
-                                     <button type="button" class="btn btn-sm btn-primary" onclick="rerurnCredit({{ $record_value['userId'] }})"  value="{{ $record_value['userId'] }}" title="Return" data-toggle="tooltip"><i class="fa fa-reply"></i></button>
-                                     <a class="btn btn-sm btn-warning" href="{{ route('view_history',$record_value['userId']) }}" title="View" data-toggle="tooltip"><i class="mdi mdi-eye"></i></a>
+                                     <button type="button" class="btn btn-sm btn-primary success-grad " onclick="rerurnCredit({{ $record_value['userId'] }})"  value="{{ $record_value['userId'] }}" title="Return" data-toggle="tooltip"><i class="fa fa-reply" style="font-size:22px;"></i></button>
+                                     <a style="width:38px;height:34px;padding-top:-3px" class="btn btn-sm btn-warning" href="{{ route('view_history',$record_value['userId']) }}" title="View" data-toggle="tooltip"><i class="mdi mdi-eye" style="font-size:20px;"></i></a>
                                                         
                                     </td>
                                 </tr>
@@ -121,14 +112,11 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                            <th>Sr No</th>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <!-- <th>Date</th> -->
-                                <th>Mobile</th>
-                               
+                                <th>Sr No</th>
+                                <th>USER DETAILS</th>
                                 <th>Credit Balance</th>
                                 <th>Action</th>
+                               
                             </tr>
                         </tfoot>
                     </table>
@@ -144,7 +132,7 @@
         <div class="modal-dialog modal-sm" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel1"><span class="modal-action-name"></span>Credit Return</h4>
+                    <h4  style="font-weight:bold;color:#BE1D2C;" class="modal-title" id="exampleModalLabel1"><span class="modal-action-name"></span>CREDIT RETURN</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <form method="post" action="{{ route('credit_return') }}" id="delete_template">
@@ -154,18 +142,17 @@
 
                         <div class="row">
                             <div class="col-12">
-                                <label for="admin_reply">Return Amount</label>
-                                <br>
+                               
                                 <div class="form-group">
-                                    <input type="text" class="form-control" name="return_amt" id="return_amt" aria-describedby="return_amt" placeholder="Amount">
+                                    <input type="text" min="1" class="form-control" name="return_amt" id="return_amt" aria-describedby="return_amt" placeholder="Amount" required>
                         
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-info submit-btn">Sure </button>
+                        <button type="button" class="btn success-grad" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-info submit-btn" style="background:green;color:white;">Confirm </button>
                     </div>
                 </form>
             </div>
@@ -174,11 +161,11 @@
     <!-- Return Credit modal ends -->
 
 
-@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR'))
+@if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
 </div>
 @endif
 
-@if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR'))
+@if( Auth::user()->roleId != Config::get('constants.DISTRIBUTOR') || Auth::user()->roleId != Config::get('constants.MASTER_DISTRIBUTOR'))
 </section>
 @endif
 
@@ -188,7 +175,7 @@
 <script src="{{ asset('template_assets/assets/extra-libs/datatables.net-bs4/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('template_assets/dist/js/pages/datatable/datatable-basic.init.js') }}"></script>
 <!-- Datatable plugin ends -->
-<script src="{{ asset('template_assets\other\js\flatpickr') }}"></script>
+<script src="{{ asset('template_assets/other/js/flatpickr.js') }}"></script>
 <script src="{{ asset('template_assets/assets/libs/jquery-validation/dist/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('dist\reports\js\rechargeReport.js') }}"></script>
 <script src="{{ asset('dist\credit_report\js\credit_report.js') }}"></script>

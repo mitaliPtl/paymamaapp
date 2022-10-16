@@ -328,6 +328,9 @@ $(window).on('load', function() {
         </div>
 </div>
 @if(isset($response))
+@php
+//print_r($response);
+@endphp
 <form action="{{ route('paymentStatus') }}" method="POST" hidden style="display:none;">
     <input type="hidden" value="{{csrf_token()}}" name="_token"/>
     <input type="hidden" class="form-control" id="rzp_paymentid" name="rzp_paymentid">
@@ -350,6 +353,8 @@ $(window).on('load', function() {
 <input type="hidden" value="{{ $response['store_name'] }}" id="rzp_store_name">
 <input type="hidden" value="{{ $response['email'] }}" id="rzp_email">
 <input type="hidden" value="{{ $response['contactNumber'] }}" id="rzp_mobile">
+<input type="hidden" value="{{ $response['method'] }}" id="rzp_method">
+<input type="hidden" value="{{ $response['types'] }}" id="rzp_types">
 <button type="submit" id="pay_now" style="display:none;"></button>
 @endif
 <!-- Online Payment ends -->

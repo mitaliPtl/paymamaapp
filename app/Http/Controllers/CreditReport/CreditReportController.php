@@ -73,7 +73,9 @@ class CreditReportController extends Controller
                                         ->orWhere('tbl_users.last_name','like', $filter_value.'%');
                                     });
         }
-
+        
+        $users=$users->where('distributor_credit', '>', 0);
+        
         $users = $users->get();
         return $users;
                         
@@ -138,7 +140,7 @@ class CreditReportController extends Controller
         //         }
         //     }
         // }
-
+        
         return $creditReport->get();
     }
 
@@ -264,7 +266,7 @@ class CreditReportController extends Controller
         $user = User::find((int) $request->user_id);
         $dbSmsData['last_balance_amount'] = $user->wallet_balance;
         $user->wallet_balance = $user->wallet_balance - $request->return_amt;
-        $userResponse = $user->save();
+        //$userResponse = $user->save();
 
         $dbSmsData['amount'] = $request->revert_amount;
         $dbSmsData['updated_balance_amount'] = $user->wallet_balance;
@@ -275,7 +277,7 @@ class CreditReportController extends Controller
 
         if ($loggedUser) {
             $loggedUser->wallet_balance = (float)$loggedUser->wallet_balance + (float)$request->return_amt;
-            $loggedUserResponse = $loggedUser->save();
+            //$loggedUserResponse = $loggedUser->save();
 
             
             $crSmsData['amount'] = $request->return_amt;
@@ -318,9 +320,12 @@ class CreditReportController extends Controller
         $use_debit_value = (float)$user->distributor_credit - (float) $request->return_amt;
         $update_debit = User::where('userId', $request->user_id)
                             ->update(['distributor_credit'=> $use_debit_value]);
+        $order_id=$this->createOrderID();                            
         $transfer_credit = TransferCreditReport::create([
+                                                
                                                 // 'reference_id' => $request->reference_id,
                                                 // 'payment_type' => $request->payment_type,
+                                                'order_id'=>$order_id,
                                                 'transfer_by_id' => $loggedUser->userId,
                                                 'transfer_by_role' => $loggedUser->roleId,
                                                'transfer_to_id' => $request->user_id,
@@ -389,8 +394,9 @@ class CreditReportController extends Controller
                             ->update(['distributor_credit'=> $use_debit_value]);
         }
         
-
+        $order_id=$this->createOrderID(); 
         $transfer_credit = TransferCreditReport::create([
+                                                'order_id'=>$order_id,
                                                 // 'reference_id' => $request->reference_id,
                                                 // 'payment_type' => $request->payment_type,
                                                 'transfer_by_id' => $loggedUser->userId,
@@ -602,5 +608,10 @@ class CreditReportController extends Controller
           return $result_;
     }
   
-   
+   public function createOrderID(){
+        $max_id = TransferCreditReport::max('id');
+        $max_id = 1+(int)$max_id;
+        $newID = "PMTR".$max_id;
+        return $newID;
+    }  
 }

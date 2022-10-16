@@ -50,8 +50,6 @@ use Session;
 
 use Response;
 
-use Storage;
-
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Hash;
@@ -69,6 +67,8 @@ use App\Packages\Cashfree\CfPayout;
 use Illuminate\Support\Facades\Redirect;
 
 use App\BankAccount;
+
+
 
 class UserController extends Controller
 
@@ -547,7 +547,8 @@ class UserController extends Controller
         $statusMsg = $value;
 
         $success = "true";
-
+        //print_r($value);
+        
         return $this->sendSuccess($success, $statusMsg);
     }
 
@@ -3187,137 +3188,274 @@ class UserController extends Controller
 
 
     public function check_verification(Request $request)
+
     {
+
         $user_id = $request->user_id;
+
         $getdetails = Verification::where([['id', '=', $user_id]])->first();
+
         if ($getdetails->success_score >= 70) {
+
             $pan_name = $getdetails->pan_name;
+
             // $pan_name=explode(' ',$pan_name);
+
             $bank_account_name = $getdetails->bank_account_name;
+
             $aadhar_name = $getdetails->aadhar_name;
+
             $aadhar_names = explode(' ', $aadhar_name);
+
             $pattern1 = "/" . $pan_name[0] . "/i";
+
             $pattern2 = "/" . $pan_name[1] . "/i";
+
             $pattern3 = "/" . $aadhar_names[0] . "/i";
+
             $pattern4 = "/" . $aadhar_names[1] . "/i";
+
             /*if(preg_match_all($pattern1, $bank_account_name, $matches) or preg_match_all($pattern2, $bank_account_name, $matches) or preg_match_all($pattern1, $aadhar_name, $matches)
+
              or preg_match_all($pattern2, $aadhar_name, $matches)  or preg_match_all($pattern3, $bank_account_name, $matches)   or preg_match_all($pattern4, $bank_account_name, $matches))
+
              {
+
              */
+
             if ($bank_account_name == $aadhar_name && $bank_account_name == $pan_name) {
+
                 //Taking Details from Verification Table and storing in user table
+
                 $email = $getdetails->email;
+
                 $password = '123456';
+
                 $type = $getdetails->type;
+
                 $fname = $getdetails->telecome_name;
+
                 $mobile = $getdetails->mobile_number;
+
                 $address = $getdetails->business_address;
+
                 $state_id = $getdetails->state_id;
+
                 $district_id = $getdetails->district_id;
+
                 $zip_code = $getdetails->zip_code;
+
                 $roleId = $getdetails->roleID;
+
                 $store_name = $getdetails->business_name;
+
                 $shop_lat = $getdetails->shop_lat;
+
                 $shop_lan = $getdetails->shop_long;
+
                 $pic_lat = $getdetails->pic_lat;
+
                 $pic_lan = $getdetails->pic_lang;
+
                 $store_category_id = $getdetails->business_category;
+
                 $parent_role_ids = $getdetails->parent_role_id;
+
                 $parent_user_ids = $getdetails->parent_user_id;
+
                 $aadhar_number = $getdetails->aadhar_number;
+
                 $pan_number = $getdetails->pan_number;
+
                 $ifsc_code = $getdetails->ifsc_code;
+
                 $selfie_id = $getdetails->selfie_id;
+
                 $pan_id = $getdetails->pan_id;
+
                 $selfiemessage = $getdetails->selfiemessage;
+
                 $aadhar_number = $getdetails->aadhar_number;
+
                 $aadhar_address = $getdetails->aadhar_address;
+
                 $bank_account_name = $getdetails->bank_account_name;
+
                 $branch_name = $getdetails->branch_name;
+
                 $account_number = $getdetails->account_number;
+
                 $bank_name = $getdetails->bank_name;
+
                 $telecome_name = $getdetails->telecome_name;
+
                 $alternate_mob_no = $getdetails->alternate_mob_no;
+
                 $address = $getdetails->business_address;
+
                 $shop_inside_image = $getdetails->shop_inside_image;
+
                 $shop_front_image = $getdetails->shop_front_image;
+
                 $taddress = $getdetails->address;
+
                 $package_id = 10;
+
                 $min_balance = 200;
+
                 $min_amount_deposit = 1000;
+
                 $max_amount_deposit = 10000;
+
                 $is_ocr = $getdetails->is_ocr;
+
                 $aadhar_front = $getdetails->aadhar_front;
+
                 $aadhar_back = $getdetails->aadhar_back;
+
+
+
                 if ($parent_role_ids == '') {
+
                     if ($roleId == 4) {
+
                         $parent_role_id = 2;
+
                         $parent_user_id = 4;
                     } else if ($roleId == 2) {
+
                         $parent_role_id = 1;
+
                         $parent_user_id = 1;
                     } else {
+
                         $parent_role_id = '';
+
                         $parent_user_id = '';
+
                         $username = '';
                     }
                 } else {
+
                     $parent_role_id = $parent_role_ids;
+
                     $parent_user_id = $parent_user_ids;
                 }
+
                 if ($roleId == 4) {
+
+
+
                     $username = $this->generateAutoUsername(Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.RETAILER')));
                 } else if ($roleId == 2) {
+
                     $username = $this->generateAutoUsername(Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.DISTRIBUTOR')));
                 } else {
+
                     $username = '';
                 }
+
+
+
                 $mpin = rand(1000, 9999);
+
                 $password = rand(100000, 999999);
+
                 $passwords = Hash::make($password);
+
                 $loggedOtp = rand(100000, 999999);
+
+
+
+
+
                 //Inserting Data from verification to user table
+
                 $pg_options = '{"upi":{"mode": "UPI","status":1,"charge":0,"type": "%"},"rupay_card":{"mode": "RUPAY_CARD","status":1,"charge": 0,"type": "%"},"debit_card":{"mode": "DEBIT_CARD","status": 0,"charge": 1.50,"type": "%"},"credit_card":{"mode": "CREDIT_CARD","status": 0,"charge": 1.50,"type": "%"},"prepaid_card":{"mode": "PREPAID_CARD","status": 0,"charge": 1.50,"type": "%"},"corporate_card":{"mode": "CORPORATE_CARD","status": 0,"charge": 2.80,"type": "%"},"wallet":{"mode": "WALLET","status":0,"charge": 2.30,"type": "%"},"net_banking":{"mode": "NET_BANKING","status":0,"charge": 2.30,"type": "%"}}';
+
                 $insertuser = User::insert([
                     'pg_options' => $pg_options, 'is_ocr' => $is_ocr, 'aadhar_front' => $aadhar_front, 'aadhar_back' => $aadhar_back, 'min_amount_deposit' => $min_amount_deposit, 'max_amount_deposit' => $max_amount_deposit, 'min_balance' => $minbalance, 'telecom_address' => $taddress, 'alternate_mob_no' => $alternate_mob_no, 'shop_front_image' => $shop_front_image, 'shop_inside_image' => $shop_inside_image, 'address' => $address, 'pan_number' => $pan_number, 'aadhar_name' => $aadhar_name, 'pan_name' => $pan_name, 'aadhar_number' => $aadhar_number, 'aadhar_address' => $aadhar_address, 'bank_account_name' => $bank_account_name, 'telecome_name' => $telecome_name, 'bank_name' => $bank_name, 'branch_name' => $branch_name, 'account_number' => $account_number, 'selfie_id' => $selfie_id, 'pan_id' => $pan_id, 'is_verified' => '1', 'activated_status' => 'YES', 'aadhar_no' => $aadhar_number, 'pan_no' => $pan_number, 'ifsc_code' => $ifsc_code, 'wallet_balance' => '0', 'mpin' => $mpin, 'store_category_id' => $store_category_id, 'shop_lat' => $shop_lat, 'shop_lan' => $shop_lan, 'pic_lat' => $pic_lat, 'pic_lan' => $pic_lan, 'store_name' => $store_name, 'username' => $username, 'email' => $email, 'password' => $passwords, 'roleId' => $roleId, 'first_name' => $fname, 'last_name' => '',
+
                     'mobile' => $mobile,  'zip_code' => $zip_code, 'address' => $address, 'parent_role_id' => $parent_role_id, 'parent_user_id' => $parent_user_id,
+
                     'commission_id' => '', 'package_id' => $package_id, 'state_id' => $state_id, 'district_id' => $district_id, 'createdBy' => '0', 'createdDtm' => date('Y-m-d H:i:s')
                 ]);
+
+
+
                 //Inserting data from verification to user ends 
+
+
+
                 //Delete From Verification List
+
                 $deleteuser = DB::table('tbl_verification')->where('id', $user_id)->update(['isDeleted' => '1']);
+
+
+
                 //Delete from Verification List
+
                 //Enter Value is Services Table for new user id
+
                 $lastuserid = User::latest('userId')->first();
+
                 $lastuserid = $lastuserid->userId;
+
                 $allServices = ServicesType::where('activated_status', Config::get('constants.ACTIVE'))->get();
+
+
+
                 $isServicePresent =  DB::table('tbl_user_services')->where('user_id', $lastuserid)->get();
+
                 if (count($isServicePresent) > 0) {
                 }
+
                 foreach ($allServices as $key => $value) {
+
                     if ($value['service_id'] <= 4) {
+
                         $insert_service = DB::table('tbl_user_services')->insert(['user_id' => $lastuserid, 'service_id' => $value['service_id'], 'status' => 1]);
                     } else {
+
                         $insert_service = DB::table('tbl_user_services')->insert(['user_id' => $lastuserid, 'service_id' => $value['service_id']]);
                     }
                 }
+
                 //Ends here
 
+
+
                 $message = $this->prepareRegistrationMsg($mpin, $password, $username);
+
                 if ($message) {
+
                     $this->create_va($username, $fname, $mobile, $email, $password, $account_number, $ifsc_code, $store_name);
+
                     $regSmsTemplateId = SmsTemplate::where('alias', Config::get('constants.SMS_TEMPLATE_ALIAS.USER_REGISTRATION.name'))->first();
+
                     $this->sendSms($message, $mobile, $regSmsTemplateId->template_id);
+
                     $statusMsg = $bank_account_name . ", Verification successful.";
-                    return response()->json(["code" => 200, "status" => "success", "message" => $statusMsg]);
+
+                    $success = "Success!!";
+
+                    return $this->sendSuccess($success, $statusMsg);
                 }
             } else {
+
                 $statusMsg = "Verification Pending due to KYC Document Not Matching";
-                return response()->json(["code" => 400, "status" => "error", "message" => $statusMsg]);
+
+                $success = "false";
+
+                return $this->sendSuccess($success, $statusMsg);
             }
         } else {
-            $statusMsg = "Verification Pending";
-            return response()->json(["code" => 400, "status" => "error", "message" => $statusMsg]);
+
+            $statusMsg = "Verification Pending" . $selfiemessage;
+
+            $success = "false";
+
+            return $this->sendSuccess($success, $statusMsg);
         }
     }
 
@@ -3585,100 +3723,197 @@ class UserController extends Controller
 
 
     public function create_va($username, $name, $phone, $email, $password, $account_no, $ifsc, $store_name)
+
     {
+
+        // $username,$name,$phone,$email,$account_no,$ifsc,$store_name;
+
         include_once(app_path() . '/Packages/Cashfree.php');
+
         $clientId = Config::get('constants.CASHFREE_COLLECT_KEY');
+
         $clientSecret = Config::get('constants.CASHFREE_COLLECT_SECRET');
+
         $stage = "PROD"; //TEST/PROD
+
         $authParams["clientId"] = $clientId;
+
         $authParams["clientSecret"] = $clientSecret;
+
         $authParams["stage"] = $stage;
+
         try {
+
             $autoCollect = new CfAutoCollect($authParams);
         } catch (Exception $e) {
+
             return false;
         }
 
+
+
         $min = 1000;
+
         $max = 10000;
+
+
+
         if ($autoCollect) {
+
             $vid = rand(0000, 99999999);
+
             $acc['vAccountId'] = $vid;
+
             $vpa['virtualVpaId'] = rand(1111111111, 9999999999);
+
             $account['name'] = $name;
+
             $account['email'] = $email;
+
             $account['phone'] = $phone;
+
             $account['remitterAccount'] = $account_no;
+
             $account['remitterIfsc'] = $ifsc;
+
             $acc['minAmount'] = $min;
+
             $acc['maxAmount'] = $max;
+
             $resp_acc = $autoCollect->createVirtualAccount(array_merge($acc, $account));
+
             $resp_vpa = $autoCollect->createVirtualAccount(array_merge($vpa, $account));
+
+
+
             Log::info('Cashfree Bank Request: ' . json_encode(array_merge($acc, $account)));
+
             Log::info('Cashfree VPA Request: ' . json_encode(array_merge($vpa, $account)));
+
             Log::info('Cashfree Bank Response: ' . json_encode($resp_acc));
+
             Log::info('Cashfree VPA Response: ' . json_encode($resp_vpa));
+
             if ($resp_acc['status'] == 'SUCCESS' && $resp_acc['subCode'] == 200 && $resp_vpa['status'] == 'SUCCESS' && $resp_vpa['subCode'] == 200) {
+
                 $qr_id = "";
+
                 $data = 'name=' . $store_name . '&vpa=' . $resp_vpa['data']['vpa'] . '&show_name=true&show_upi=false&type=UPI&logo_type=round&template_id=qr_paymama&'; //customtemplate id given by apiclub
+
                 $curl = curl_init();
+
                 curl_setopt_array($curl, array(
+
                     CURLOPT_URL => 'https://api.apiclub.in/api/v1/generate_qr',
+
                     CURLOPT_RETURNTRANSFER => true,
+
                     CURLOPT_ENCODING => '',
+
                     CURLOPT_MAXREDIRS => 10,
+
                     CURLOPT_TIMEOUT => 0,
+
                     CURLOPT_FOLLOWLOCATION => true,
+
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+
                     CURLOPT_CUSTOMREQUEST => 'POST',
+
                     CURLOPT_POSTFIELDS => $data,
+
                     CURLOPT_HTTPHEADER => array(
+
                         'Referer: ' . Config::get('constants.WEBSITE_BASE_URL'),
+
                         'API-KEY: ' . Config::get('constants.APICLUB_API_KEY'),
+
                         'Content-Type: application/x-www-form-urlencoded'
+
                     ),
+
                 ));
+
+
+
                 $response = curl_exec($curl);
+
                 curl_close($curl);
+
                 $resp = json_decode($response, true);
+
                 if (isset($resp['code']) && $resp['code'] == 200 && $resp['status'] == 'success') {
+
                     $qr_id = $resp['response']['qr_id'];
                 }
+
+
+
                 $vdata = array(
+
                     'va_id' => $vid,
+
                     'va_account_number' => $resp_acc['data']['accountNumber'],
+
                     'va_ifsc_code' => $resp_acc['data']['ifsc'],
+
                     'va_upi_id' => $resp_vpa['data']['vpa'],
+
                     'qr_id' => $qr_id,
+
                 );
+
                 $user_info = User::where('username', $username)->get()->first();
+
                 $user_info->va_id = $vid;
+
                 $user_info->va_account_number = $resp_acc['data']['accountNumber'];
+
                 $user_info->va_ifsc_code = $resp_acc['data']['ifsc'];
+
                 $user_info->va_upi_id = $resp_vpa['data']['vpa'];
+
                 $user_info->qr_id = $qr_id;
+
                 if ($user_info->save()) {
+
                     $data = array(
+
                         'email' => $email,
+
                         'name' => $name,
+
                         'username' => $username,
+
                         'password' => $password,
+
                         'mpin' => $user_info->mpin
+
                     );
-                    // $send_email = Mail::send('mail.welcome', $data, function ($msg) use ($email, $name) {
-                    //     $msg->to($email, $name);
-                    //     $msg->subject('Welcome to PayMama');
-                    //     $msg->from('hello@paymamaapp.in', 'PayMama - Business Made Easy');
-                    // });
-                    // $send_email = Mail::send('mail.kyc', $data, function ($msg) use ($email, $name) {
-                    //     $msg->to($email, $name);
-                    //     $msg->subject('KYC Completed Successfully - PayMama');
-                    //     $msg->from('hello@paymamaapp.in', 'PayMama - Business Made Easy');
-                    // });
+
+                    $send_email = Mail::send('mail.welcome', $data, function ($msg) use ($email, $name) {
+
+                        $msg->to($email, $name);
+
+                        $msg->subject('Welcome to PayMama');
+
+                        $msg->from('hello@paymamaapp.in', 'PayMama - Business Made Easy');
+                    });
+
+                    $send_email = Mail::send('mail.kyc', $data, function ($msg) use ($email, $name) {
+
+                        $msg->to($email, $name);
+
+                        $msg->subject('KYC Completed Successfully - PayMama');
+
+                        $msg->from('hello@paymamaapp.in', 'PayMama - Business Made Easy');
+                    });
+
                     return $vdata;
                 }
             }
         }
+
         return false;
     }
 
@@ -4834,6 +5069,18 @@ class UserController extends Controller
 
             //     $roleId = Config::get('constants.FOS');
 
+        }elseif ($request->role_id == Config::get('constants.MASTER_DISTRIBUTOR')) {
+
+            $roleId = Config::get('constants.MASTER_DISTRIBUTOR');
+
+            $alias = Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR');
+
+            // }
+
+            // elseif($request->role_id == Config::get('constants.FOS')) {
+
+            //     $roleId = Config::get('constants.FOS');
+
         } else {
 
             return $this->sendError('Invalid User');
@@ -5039,190 +5286,296 @@ class UserController extends Controller
     public function signUpUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'firstName' => 'required',
-            'lastName' => 'required',
-            'mobileNo' => 'required|unique:tbl_users,mobile',
-            'email' => 'required|string|email|max:255|unique:tbl_users,email',
+
+            'sendOtp' => 'required|integer',
+
             'business' => 'required',
-            'userType' => 'required'
+
+            'email' => 'required|string|email|max:255|unique:tbl_users,email',
+
+            'mobileNo' => 'required|unique:tbl_users,mobile',
+
+            'firstName' => 'required',
+            
+            'lastName' => 'required',
+
             // 'otp' => ''
+
         ]);
 
+
         if ($validator->fails()) {
-            return response()->json(['code' => 400, 'status' => 'error', 'message' => $validator->errors()]);
+
+            return $this->sendError($validator->errors()->first());
         }
 
         $otp = '';
-        if (isset($request->userType) && $request->userType == Config::get('constants.DISTRIBUTOR')) {
-            $dtId = 'DT10001';
-            if (isset($request->distributorId)) {
-                $dtId = $request->distributorId;
-            }
+
+        $dtId = 'DT10001';
+        if (isset($request->distributorId)) {
+            $dtId = $request->distributorId;
         }
-        if (isset($request->userType) && $request->userType == Config::get('constants.RETAILER')) {
-            $dtId = 'RT10001';
-            if (isset($request->retailerId)) {
-                $dtId = $request->retailerId;
-            }
-        }
+
         $parent_id = User::getIdbyUsername($dtId);
         if ($parent_id == "") {
             $parent_id = '4';
         }
 
-        if ($request->ajax()) {
+
+        if ($request->sendOtp) {
+
             $otp = rand(111111, 999999);
+
             $msg = $otp . " is your verification code,Helpline : 040-29563154 www.paymamaapp.in";
+
             $sms_tempid = SmsTemplate::where('alias', Config::get('constants.SMS_TEMPLATE_ALIAS.VERIFY_USER_OTP.name'))->get()->first();
-            $response = $this->sendSms($msg, $request->mobileNo, $sms_tempid->template_id);
-            $response = (array)json_decode($response);
 
-            if ($response['status'] == "success") {
-                Session::put('OTP', $otp);
-                $req = $request->all();
-                $req['get_otp'] = '' . $otp;
-                return response()->json(['code' => 200, 'status' => 'success', 'message' => 'OTP send successfully!', 'otp' => $otp]);
-            } else {
-                return response()->json(['code' => 400, 'status' => 'error', 'message' => 'OTP send failed! Please check your contact details.']);
-            }
-        } elseif ($request->otp != "") {
+            // $response = $this->sendSms($msg, $request->mobileNo, $sms_tempid->template_id);
+
+            Session::put('OTP', $otp);
+
+            $req = $request->all();
+
+            $req['get_otp'] = '' . $otp;
+            return Response::json(['otp' => $otp]);
+        } elseif (!$request->sendOtp && $request->otp != "") {
             Log::info('SIGN UP DATA : ' . json_encode($request->all()));
-            if (Session::get('OTP') == $request->otp) {
-                Session::forget('OTP');
-                $mpin = rand(1000, 9999);
-                $password = rand(100000, 999999);
-                $loggedOtp = rand(100000, 999999);
-                $roleId = Config::get('constants.RETAILER');
-                $alias = Config::get('constants.ROLE_ALIAS.RETAILER');
-                $username = $this->generateAutoUsername($roleId);
-                $statusMsg = "";
-                $success = null;
-                $pg_options = '{"upi":{"mode": "UPI","status":1,"charge":0,"type": "%"},"rupay_card":{"mode": "RUPAY_CARD","status":0,"charge": 0,"type": "%"},"debit_card":{"mode": "DEBIT_CARD","status": 0,"charge": 1.50,"type": "%"},"credit_card":{"mode": "CREDIT_CARD","status": 0,"charge": 1.50,"type": "%"},"prepaid_card":{"mode": "PREPAID_CARD","status": 0,"charge": 1.50,"type": "%"},"corporate_card":{"mode": "CORPORATE_CARD","status": 0,"charge": 2.80,"type": "%"},"wallet":{"mode": "WALLET","status":0,"charge": 2.30,"type": "%"},"net_banking":{"mode": "NET_BANKING","status":0,"charge": 2.30,"type": "%"}}';
-                $user = User::create([
-                    'first_name' => $request->firstName,
-                    'last_name' => $request->lastName, //confirm
-                    'user_dob' => now(),
-                    'email' => $request->email,
-                    'password' => Hash::make($password),
-                    'username' => $username,
-                    'mpin' => $mpin,
-                    'user_code' => '',
-                    'mobile' => $request->mobileNo,
-                    'alternate_mob_no' => '',
-                    'pan_no' => '',
-                    'aadhar_no' => '',
-                    'gst_no' => '',
-                    'whatsapp_no' => '',
-                    'telegram_no' => '',
-                    'roleId' => $roleId,
-                    'min_amount_deposit' => 1000,
-                    'min_balance' => 200,
-                    'max_amount_deposit' => 10000,
-                    'min_amount_withdraw' => 200,
-                    'max_amount_withdraw' => 10000,
-                    'parent_role_id' => $request->parent_role_id ?? Config::get('constants.DISTRIBUTOR'),
-                    'parent_user_id' => $parent_id,
-                    'package_id' => $request->package_id ?? '3',
-                    'state_id' => '',
-                    'district_id' => '',
-                    'activated_status' => Config::get('constants.ACTIVE'),
-                    'address' => '',
-                    'zip_code' => '',
-                    'store_name' => $request->business,
-                    'store_category_id' => 0,
-                    'wallet_balance' => 0,
-                    'commission_id' => '',
-                    'pg_options' => $pg_options,
-                    'pg_status' => '1',
-                    'createdDtm' => now(),
-                    'logged_otp' => 0000,
-                    'createdBy' => 0,
-                ]);
 
-                if ($user) {
-                    $user_info = User::with(['ekyc'])->where('username', $username)->get()->first();
-                    $this->insertAllowServices($user_info->userId);
-                    if ($user_info->ekyc == "") {
-                        Ekyc::create([
-                            'user_id' => $user_info->userId,
-                            'aadhaar_kyc' => '0',
-                            'zip_file' => '',
-                            'share_code' => '',
-                            'mobile' => '',
-                            'aadhaar_no' => '',
-                            'aadhaar_name' => '',
-                            'aadhaar_address' => '',
-                            'aadhaar_image' => '',
-                            'pan_kyc' => '0',
-                            'pan_no' => '',
-                            'pan_name' => '',
-                            'pan_file' => '',
-                            'bank_kyc' => '0',
-                            'acc_no' => '',
-                            'acc_name' => '',
-                            'ifsc_code' => '',
-                            'bank_name' => '',
-                            'branch_name' => '',
-                            'selfie_kyc' => '0',
-                            'selfie_image' => '',
-                            'success_score' => '',
-                            'business_kyc' => '0',
-                            'business_name' => $request->business,
-                            'business_address' => '',
-                            'pincode' => '',
-                            'state' => '',
-                            'city' => '',
-                            'category' => '',
-                            'front_image' => '',
-                            'inside_image' => '',
-                            'latitude' => '',
-                            'longitude' => '',
-                            'blat' => '',
-                            'blong' => '',
-                            'complete_kyc' => '0'
-                        ]);
-                    }
-                    $message = $this->prepareRegistrationMsg($mpin, $password, $username);
-                    if ($message) {
-                        $email = $request->email;
-                        $name = $request->firstName . " " . $request->lastName;
-                        $data = array(
-                            'email' => $email,
-                            'name' => $name,
-                            'username' => $username,
-                            'password' => $password,
-                            'mpin' => $mpin
-                        );
-                        // $send_email = Mail::send('mail.welcome', $data, function ($msg) use ($email, $name) {
-                        //     $msg->to($email, $name);
-                        //     $msg->subject('Welcome to PayMama');
-                        //     $msg->from('hello@paymamaapp.in', 'PayMama - Business Made Easy');
-                        // });
-                        $smsTemplateId = SmsTemplate::where('alias', Config::get('constants.SMS_TEMPLATE_ALIAS.USER_REGISTRATION.name'))->first();
-                        $this->sendSms($message, $request->mobileNo, $smsTemplateId->template_id);
-                        $statusMsg = "Congratulations " . $name . ". Verification successful. Check Mobile for Login Credentials.";
-                        $success = "Success!!";
-                        $credentials = [
-                            'username' => $username,
-                            'password' => $password
-                        ];
-                        if (Auth::attempt($credentials)) {
-                            return redirect('/home')->with('success', 'User updated!');
-                        } else {
-                            return redirect()->back()->with('error', 'Unable to login. Please login with your credentials!');
-                        }
-                        // return redirect()->back()->with('success', 'User Successfully Added!');
-                    }
-                } else {
-                    return redirect()->back()
-                    ->with('error','Something went to wrong!')
-                    ->withInput();
+            Session::forget('OTP');
+
+            $mpin = rand(1000, 9999);
+
+            $password = rand(100000, 999999);
+
+            $loggedOtp = rand(100000, 999999);
+
+            $roleId = Config::get('constants.RETAILER');
+
+            $alias = Config::get('constants.ROLE_ALIAS.RETAILER');
+
+            $username = $this->generateAutoUsername($roleId);
+
+            $statusMsg = "";
+
+            $success = null;
+
+            $pg_options = '{"upi":{"mode": "UPI","status":1,"charge":0,"type": "%"},"rupay_card":{"mode": "RUPAY_CARD","status":0,"charge": 0,"type": "%"},"debit_card":{"mode": "DEBIT_CARD","status": 0,"charge": 1.50,"type": "%"},"credit_card":{"mode": "CREDIT_CARD","status": 0,"charge": 1.50,"type": "%"},"prepaid_card":{"mode": "PREPAID_CARD","status": 0,"charge": 1.50,"type": "%"},"corporate_card":{"mode": "CORPORATE_CARD","status": 0,"charge": 2.80,"type": "%"},"wallet":{"mode": "WALLET","status":0,"charge": 2.30,"type": "%"},"net_banking":{"mode": "NET_BANKING","status":0,"charge": 2.30,"type": "%"}}';
+
+            $user = User::create([
+
+                'first_name' => $request->firstName,
+
+                'last_name' => $request->lastName, //confirm
+
+                'user_dob' => now(),
+
+                'email' => $request->email,
+
+                'password' => Hash::make($password),
+
+                'username' => $username,
+
+                'mpin' => $mpin,
+
+                'user_code' => '',
+
+                'mobile' => $request->mobileNo,
+
+                'alternate_mob_no' => '',
+
+                'pan_no' => '',
+
+                'aadhar_no' => '',
+
+                'gst_no' => '',
+
+                'whatsapp_no' => '',
+
+                'telegram_no' => '',
+
+                'roleId' => $roleId,
+
+                'min_amount_deposit' => 1000,
+
+                'min_balance' => 200,
+
+                'max_amount_deposit' => 10000,
+
+                'min_amount_withdraw' => 200,
+
+                'max_amount_withdraw' => 10000,
+
+                'parent_role_id' => $request->parent_role_id ?? Config::get('constants.DISTRIBUTOR'),
+
+                'parent_user_id' => $parent_id,
+
+                'package_id' => $request->package_id ?? '3',
+
+                'state_id' => '',
+
+                'district_id' => '',
+
+                'activated_status' => Config::get('constants.ACTIVE'),
+
+                'address' => '',
+
+                'zip_code' => '',
+
+                'store_name' => $request->business,
+
+                'store_category_id' => 0,
+
+                'wallet_balance' => 0,
+
+                'commission_id' => '',
+
+                'pg_options' => $pg_options,
+
+                'pg_status' => '1',
+
+                'createdDtm' => now(),
+
+                'logged_otp' => 0000,
+
+                'createdBy' => 0,
+
+            ]);
+
+            if ($user) {
+
+                $user_info = User::with(['ekyc'])->where('username', $username)->get()->first();
+
+                $this->insertAllowServices($user_info->userId);
+
+                if ($user_info->ekyc == "") {
+
+                    Ekyc::create([
+
+                        'user_id' => $user_info->userId,
+
+                        'aadhaar_kyc' => '0',
+
+                        'zip_file' => '',
+
+                        'share_code' => '',
+
+                        'mobile' => '',
+
+                        'aadhaar_no' => '',
+
+                        'aadhaar_name' => '',
+
+                        'aadhaar_address' => '',
+
+                        'aadhaar_image' => '',
+
+                        'pan_kyc' => '0',
+
+                        'pan_no' => '',
+
+                        'pan_name' => '',
+
+                        'pan_file' => '',
+
+                        'bank_kyc' => '0',
+
+                        'acc_no' => '',
+
+                        'acc_name' => '',
+
+                        'ifsc_code' => '',
+
+                        'bank_name' => '',
+
+                        'branch_name' => '',
+
+                        'selfie_kyc' => '0',
+
+                        'selfie_image' => '',
+
+                        'success_score' => '',
+
+                        'business_kyc' => '0',
+
+                        'business_name' => $request->business,
+
+                        'business_address' => '',
+
+                        'pincode' => '',
+
+                        'state' => '',
+
+                        'city' => '',
+
+                        'category' => '',
+
+                        'front_image' => '',
+
+                        'inside_image' => '',
+
+                        'latitude' => '',
+
+                        'longitude' => '',
+
+                        'blat' => '',
+
+                        'blong' => '',
+
+                        'complete_kyc' => '0'
+
+                    ]);
+                }
+
+                $message = $this->prepareRegistrationMsg($mpin, $password, $username);
+
+                if ($message) {
+
+                    $email = $request->email;
+
+                    $name = $request->firstName . " " . $request->lastName;
+
+                    $data = array(
+
+                        'email' => $email,
+
+                        'name' => $name,
+
+                        'username' => $username,
+
+                        'password' => $password,
+
+                        'mpin' => $mpin
+
+                    );
+
+                    $send_email = Mail::send('mail.welcome', $data, function ($msg) use ($email, $name) {
+
+                        $msg->to($email, $name);
+
+                        $msg->subject('Welcome to PayMama');
+
+                        $msg->from('hello@paymamaapp.in', 'PayMama - Business Made Easy');
+                    });
+
+                    $smsTemplateId = SmsTemplate::where('alias', Config::get('constants.SMS_TEMPLATE_ALIAS.USER_REGISTRATION.name'))->first();
+
+                    $this->sendSms($message, $request->mobileNo, $smsTemplateId->template_id);
+
+                    $statusMsg = "Congratulations " . $name . ". Verification successful. Check Mobile for Login Credentials.";
+
+                    $success = "Success!!";
+
+                    return redirect()->back()->with('success', 'User Successfully Added!');
                 }
             } else {
-                return response()->json(['code' => 400, 'status' => 'error', 'message' => 'Please enter valid OTP.']);
-            }    
+                return redirect()->back()
+                   ->with('error','Something went to wrong!')
+                   ->withInput();
+            }
         } else {
-            return redirect()->back()->with('error','Invalid OTP')->withInput();
+            return redirect()->back()
+                   ->with('error','Invalid OTP')
+                   ->withInput();
         }
     }
 
@@ -5472,470 +5825,742 @@ class UserController extends Controller
 
 
     public function submitAadharKyc(Request $request)
+
     {
+
         $validator = Validator::make($request->all(), [
-            'userId' => 'required',
+
+            'user_id' => 'required',
+
             'phoneNo' => 'required',
+
             'adhaarNumber' => 'required',
+
             'shareCode' => 'required',
+
             'zipFileCode' => 'required'
+
         ]);
+
+
+
         if ($validator->fails()) {
-            return response()->json(['code' => 400, 'status' => 'error', 'message' => $validator->errors()->first()]);
+
+            return $this->sendError($validator->errors()->first());
         }
+
+
 
         if (!$this->isAadharValid($request->adhaarNumber)) {
-            return response()->json(['code' => 400, 'status' => 'error', 'message' => 'Invalid Aadhaar Number']);
+
+            return $this->sendError('Invalid Aadhaar Number');
         }
 
-        $user = User::find((int) $request->userId);
-        $check_kyc = Ekyc::where('user_id', $request->userId)->first();
+        $user = User::find((int) $request->user_id);
+
+        $check_kyc = Ekyc::where('user_id', $request->user_id)->first();
+
         if ($check_kyc) {
+
             if ($check_kyc->aadhaar_kyc == '1') {
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Aadhaar Verification is pending at admin approval']);
+
+                return $this->sendError('Aadhaar Verification is pending at admin approval');
             } elseif ($check_kyc->aadhaar_kyc == '2') {
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Aadhaar Verification is already completed']);
+
+                return $this->sendError('Aadhaar Verification is already completed');
             }
+
+            $file = base64_decode($request->zipFileCode);
+
+            $zipname = $request->user_id . '' . rand(00000000, 99999999) . '.' . 'zip';
+
+            $upload = file_put_contents(public_path() . '/storage/kyc/zip/' . $zipname, $file);
+
+            $zip_url = 'https://paymamaapp.in/public/storage/kyc/zip/' . $zipname;
+
             $status = '1';
-            $file = $request->file('zipFileCode');
-            $zipname = $request->userId . '' . rand(00000000, 99999999) . '.' . $file->getClientOriginalExtension();
-            Storage::disk('ftp')->put("zip/" . $zipname, fopen($request->file('zipFileCode'), 'r+'));
-            $zip_url = Config::get('constants.WEBSITE_BASE_URL') . 'public/storage/kyc/zip/' . $zipname;
 
             $data = array(
+
                 'passcode' => $request->shareCode,
+
                 'mobile' => $request->phoneNo,
+
                 'zip_url' => $zip_url
+
             );
 
             $response = Http::withHeaders([
+
                 'Referer' => Config::get('constants.WEBSITE_BASE_URL'),
+
                 'API-KEY' => Config::get('constants.APICLUB_API_KEY')
-            ])->post(Config::get('constants.API_CLUB_URL') . 'verify_aadhar', $data);
+
+            ])->post('https://api.apiclub.in/api/v1/verify_aadhar', $data);
+
             if ($response->successful()) {
+
                 $resp = $response->json();
+
                 Log::info('APICLUB AADHAAR KYC : ' . json_encode($data));
+
                 Log::info('APICLUB AADHAAR KYC : ' . json_encode($resp));
+
                 if ($resp['code'] == 200 && $resp['status'] == 'success') {
+
                     if (isset($resp['response']['mobile_verified']) && (!$resp['response']['mobile_verified'] || $resp['response']['mobile_verified'] == false)) {
-                        return response()->json(['code' => 400, 'status' => 'error', 'message' => 'Please enter Aadhaar registered mobile number']);
+
+                        return $this->sendError('Please enter Aadhaar registered mobile number');
                     }
-                    
-                    $fileupload = File::create(['file_path' => '/public/storage/kyc/zip/' . $zipname, 'name' => $zipname]);
-                    $check_kyc->zip_file = $fileupload->id;
+
                     $file = base64_decode($resp['response']['image']);
+
                     $name = $request->user_id . '' . rand(00000000, 99999999) . '.' . 'jpg';
-                    Storage::disk('ftp')->put("aadhaar/" . $name, $file);
-                    $imageupload = File::create(['file_path' => '/public/storage/kyc/aadhaar/' . $name, 'name' => $name]);
-                    $check_kyc->aadhaar_image = $imageupload->id;
+
+                    $upload = file_put_contents(public_path() . '/storage/kyc/aadhaar/' . $name, $file);
+
+                    $status = '1';
+
+                    $fileupload = File::create(['file_path' => '/storage/kyc/aadhaar/' . $name, 'name' => $name]);
 
                     $status = '2';
+
+                    $check_kyc->aadhaar_image = $fileupload->id;
+
                     $name = str_replace('  ', ' ', $resp['response']['name']);
                     $name = strtoupper($name);
                     $check_kyc->aadhaar_name = $name;
 
                     $add = $resp['response']['address']['careof'] . ", " ?? "";
+
                     $add .= $resp['response']['address']['house'] . ", " ?? "";
+
                     $add .= $resp['response']['address']['street'] . ", " ?? "";
+
                     $add .= $resp['response']['address']['po'] . ", " ?? "";
+
                     $add .= $resp['response']['address']['dist'] . ", " ?? "";
+
                     $add .= $resp['response']['address']['state'] . "- " ?? "";
+
                     $add .= $resp['response']['address']['pc'] ?? "";
 
                     $check_kyc->aadhaar_address = $add;
+
                     $user->first_name = $name;
-                    $user->aadhar_no = $request->adhaarNumber;
-                    $user->aadhar_number = $resp['response']['aadhar'];
+
                     $user->update();
                 } else {
-                    return response()->json(['code' => 400, 'status' => 'error', 'message' => $resp['response'] ?? 'Something went wrong']);
+
+                    return $this->sendError($resp['response'] ?? 'Something went wrong');
                 }
-            } else {
-                Storage::disk('ftp')->delete("zip/" . $zipname);
-                return response()->json(['code' => 404, 'status' => 'error', 'message' => 'Something went to wrong!']);
             }
-            
+
+            $fileupload = File::create(['file_path' => '/storage/kyc/zip/' . $zipname, 'name' => $zipname]);
+
+            $check_kyc->zip_file = $fileupload->id;
+
             $check_kyc->share_code = $request->shareCode;
+
             $check_kyc->mobile = $request->phoneNo;
+
             $check_kyc->aadhaar_no = 'xxxxxxxxx' . substr($request->adhaarNumber, -4);
+
             $check_kyc->aadhaar_kyc = $status;
 
             if ($check_kyc->update()) {
+
                 $success['aadhaar_kyc'] = '' . $check_kyc->aadhaar_kyc; //0 - unverified,1 - pending ,2 - verified,3 - rejected
-                return response()->json(['code' => 200, 'status' => 'success', 'message' => "Aadhaar Kyc Submitted successfully"]);
+
+                return $this->sendSuccess($success, "Aadhaar Kyc Submitted successfully");
             } else {
-                return response()->json(['code' => 400, "status" => 'error', "message" => "Unable to complete your Aadhaar KYC now"]);
+
+                return $this->sendError("Unable to complete your Aadhaar KYC now");
             }
         }
+
+        return $this->sendError("Something went wrong please logout and login again!");
     }
 
 
 
     public function submitPanKyc(Request $request)
+
     {
+
         $validator = Validator::make($request->all(), [
-            'userId' => 'required',
-            'panNo' => 'required',
-            'panFile' => 'required'
+
+            'user_id' => 'required',
+
+            'pan_no' => 'required',
+
+            'pan_file' => 'required'
+
         ]);
+
+
+
         if ($validator->fails()) {
-            return response()->json(["code" => 400, "status" => "error", "message" => $validator->errors()->first()]);
+
+            return $this->sendError($validator->errors()->first());
         }
 
-        if (strlen($request->panNo) != 10 || !preg_match("/([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}/", $request->panNo)) {
-            return response()->json(["code" => 400, "status" => "error", "message" => 'Invalid Pan Number']);
+
+
+        if (strlen($request->pan_no) != 10 || !preg_match("/([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}/", $request->pan_no)) {
+
+            return $this->sendError('Invalid Pan Number');
         }
 
-        $user = User::find((int) $request->userId);
-        $check_kyc = Ekyc::where('user_id', $request->userId)->first();
+        $user = User::find((int) $request->user_id);
+
+        $check_kyc = Ekyc::where('user_id', $request->user_id)->first();
+
         if ($check_kyc) {
+
             if ($check_kyc->pan_kyc == '1') {
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Pan Verification is pending at admin approval']);
+
+                return $this->sendError('Pan Verification is pending at admin approval');
             } elseif ($check_kyc->pan_kyc == '2') {
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Pan Verification is already completed']);
+
+                return $this->sendError('Pan Verification is already completed');
             }
+
+            $file = base64_decode($request->pan_file);
+
+            $name = $request->user_id . '' . rand(00000000, 99999999) . '.' . 'jpg';
+
+            $upload = file_put_contents(public_path() . '/storage/kyc/pan/' . $name, $file);
+
             $status = '1';
-            
+
+            $fileupload = File::create(['file_path' => '/storage/kyc/pan/' . $name, 'name' => $name]);
+
+            // $user->pan_id = $fileupload->id;
+
             $response = Http::withHeaders([
+
                 'Referer' => Config::get('constants.WEBSITE_BASE_URL'),
+
                 'API-KEY' => Config::get('constants.APICLUB_API_KEY')
-            ])->post('https://api.apiclub.in/api/v1/verify_pan', array('pan_no' => $request->panNo));
+
+            ])->post('https://api.apiclub.in/api/v1/verify_pan', array('pan_no' => $request->pan_no));
+
             if ($response->successful()) {
+
                 $resp = $response->json();
+
                 if ($resp['code'] == 200 && $resp['status'] == 'success') {
+
                     $name = str_replace('  ', ' ', $resp['response']['registered_name']);
                     $name = strtoupper($name);
+
                     $check_kyc->pan_name = $name;
-                    $file = $request->file('panFile');
-                    $fileName = $request->userId . '' . rand(00000000, 99999999) . '.' . $file->getClientOriginalExtension();
-                    Storage::disk('ftp')->put("pan/" . $fileName, fopen($file, 'r+'));
-                    $fileupload = File::create(['file_path' => '/public/storage/kyc/pan/', 'name' => $fileName]);
-                    $check_kyc->pan_file = $fileupload->id;
-                    $user->pan_number = strtoupper($request->panNo);
-                    $user->pan_name = $name;
+
+                    // $user->pan_number = strtoupper($request->pan_no);
+
+                    // $user->pan_name = $name;
+
                     similar_text($name, $check_kyc->aadhaar_name, $percent);
+
                     if ($percent >= 70) {
+
                         $status = '2';
                     }
-                    $user->pan_number = $request->panNo;
                 } else {
-                    return response()->json(["code" => 400, "status" => "error", "message" => $resp['response'] ?? 'Something went wrong']);
-                }
-                $user->update();
-                $check_kyc->pan_no = strtoupper($request->panNo);
-                $check_kyc->pan_kyc = $status;
 
-                if ($check_kyc->update()) {
-                    $status = 'unverified'; //0 - unverified,1 - pending ,2 - verified,3 - rejected
-                    if ($check_kyc->pan_kyc == 1) {
-                        $status = 'pending';
-                    } else if ($check_kyc->pan_kyc == 2) {
-                        $status = 'verified';
-                    } else if ($check_kyc->pan_kyc == 3) {
-                        $status = 'rejected';
-                    }
-                    return response()->json(["code" => 200, "status" => "success", 'message' => "Pan Kyc Status is " . $status]);
-                } else {
-                    return response()->json(["code" => 400, "status" => "error", "message" => "Unable to complete your PAN KYC now"]);
+                    return $this->sendError($resp['response'] ?? 'Something went wrong');
                 }
             }
+
+            // $user->update();
+
+            $check_kyc->pan_file = $fileupload->id;
+
+            $check_kyc->pan_no = strtoupper($request->pan_no);
+
+            $check_kyc->pan_kyc = $status;
+
+            if ($check_kyc->update()) {
+
+                $success['pan_kyc'] = '' . $check_kyc->pan_kyc; //0 - unverified,1 - pending ,2 - verified,3 - rejected
+
+                return $this->sendSuccess($success, "Pan Kyc Submitted successfully");
+            } else {
+
+                return $this->sendError("Unable to complete your PAN KYC now");
+            }
         }
-        return response()->json(["code" => 400, "status" => "error", "message" => "Something went wrong please logout and login again!"]);
+
+        return $this->sendError("Something went wrong please logout and login again!");
     }
 
 
 
     public function submitBankKyc(Request $request)
+
     {
+
         $validator = Validator::make($request->all(), [
-            'userId' => 'required',
-            'accName' => 'required',
-            'accNo' => 'required',
-            'accIfsc' => 'required',
-            'chequeUpload' => 'required'
+
+            'user_id' => 'required',
+
+            'acc_name' => 'required',
+
+            'acc_no' => 'required',
+
+            'acc_ifsc' => 'required'
+
         ]);
 
+
+
         if ($validator->fails()) {
-            return response()->json(["code" => 400, "status" => "error", "message" => $validator->errors()->first()]);
+
+            return $this->sendError($validator->errors()->first());
         }
-        $user = User::find((int) $request->userId);
-        $check_kyc = Ekyc::where('user_id', $request->userId)->first();
+
+        $user = User::find((int) $request->user_id);
+
+        $check_kyc = Ekyc::where('user_id', $request->user_id)->first();
+
         if ($check_kyc) {
+
             if ($check_kyc->bank_kyc == '1') {
-                return response()->json(["code" => 200, "status" => "success", "success" => 'Bank Account Verification is pending at admin approval']);
+
+                return $this->sendError('Bank Account Verification is pending at admin approval');
             } elseif ($check_kyc->bank_kyc == '2') {
-                return response()->json(["code" => 200, "status" => "success", "success" => 'Bank Account Verification is already completed']);
+
+                return $this->sendError('Bank Account Verification is already completed');
             }
+
             if ($check_kyc->pan_kyc != '2' && $check_kyc->pan_kyc != '1') {
-                return response()->json(["code" => 400, "status" => "success", "error" => 'Please complete Pan Verification to continue']);
+
+                return $this->sendError('Please complete Pan Verification to continue');
             }
-            $name = $request->accName;
+
+            $name = $request->acc_name;
+
             $status = '1';
+
             include_once(app_path() . '/Packages/CashfreePayouts.php');
+
             $clientId = Config::get('constants.CASHFREE_PAYOUT_KEY');
+
             $clientSecret = Config::get('constants.CASHFREE_PAYOUT_SECRET');
-            $stage = "TEST"; //TEST/PROD
+
+            $stage = "PROD"; //TEST/PROD
+
             $authParams["clientId"] = $clientId;
+
             $authParams["clientSecret"] = $clientSecret;
+
             $authParams["stage"] = $stage;
+
             try {
+
                 $payouts = new CfPayout($authParams);
-            } catch (\Exception $e) {
-                $status = 'pending';
-                $check_kyc->acc_no = $request->bankAccountNo;
-                $check_kyc->acc_name = $name;
-                $check_kyc->ifsc_code = $request->ifscCode;
-                $check_kyc->bank_kyc = '1';
-                $file = $request->file('chequeUpload');
-                $fileName = $request->userId . '' . rand(00000000, 99999999) . '.' . $file->getClientOriginalExtension();
-                Storage::disk('ftp')->put("bank/" . $fileName, fopen($file, 'r+'));
-                $fileupload = File::create(['file_path' => '/public/storage/kyc/bank/', 'name' => $fileName]);
-                $check_kyc->bank_file = $fileupload->id;
-                $check_kyc->update();
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Bank verification is pending at admin side.']);
+            } catch (Exception $e) {
+
+                return $this->sendError('Something went wrong');
             }
+
             if ($payouts) {
-                $validateIfsc = $payouts->validateIfsc($request->accIfsc);
+
+                $validateIfsc = $payouts->validateIfsc($request->acc_ifsc);
+
                 Log::info('IFSC API : ' . json_encode($validateIfsc));
+
                 if ($validateIfsc['status'] == 'SUCCESS' && $validateIfsc['subCode'] == 200) {
+
                     $bank_name = $validateIfsc['data']['bank'] ?? '';
+
                     $branch_name = $validateIfsc['data']['branch'] ?? '';
-                    $validateBank = $payouts->validateBank($request->accNo, $request->accIfsc);
+
+                    $validateBank = $payouts->validateBank($request->acc_no, $request->acc_ifsc);
+
                     Log::info('BANK VALIDATE API : ' . json_encode($validateBank));
+
                     if ($validateBank['status'] == 'SUCCESS' && $validateBank['subCode'] == 200) {
+
                         if ($validateBank['accountStatus'] == 'VALID') {
+
                             $name = trim($validateBank['data']['nameAtBank']);
+
                             $name = str_replace("  ", " ", $name);
                             $name = strtoupper($name);
 
                             similar_text($name, $check_kyc->pan_name, $percent);
+
                             if ($percent >= 70) {
+
                                 $status = '2';
                             }
 
-                            $user->account_number = $request->bankAccountNo;
-                            $user->ifsc_code = $request->ifscCode;
-                            $user->bank_account_name = $name;
-                            $user->bank_name = $bank_name;
-                            $user->update();
-                            $check_kyc->acc_no = $request->bankAccountNo;
+                            // $user->account_number = $request->acc_no;
+
+                            // $user->ifsc_code = $request->acc_ifsc;
+
+                            // $user->bank_account_name = $name;
+
+                            // $user->bank_name = $bank_name;
+
+                            // $user->update();
+
+                            $check_kyc->acc_no = $request->acc_no;
+
                             $check_kyc->acc_name = $name;
-                            $check_kyc->ifsc_code = $request->ifscCode;
+
+                            $check_kyc->ifsc_code = $request->acc_ifsc;
+
                             $check_kyc->branch_name = $branch_name;
+
                             $check_kyc->bank_name = $bank_name;
+
                             $check_kyc->bank_kyc = $status;
-                            $file = $request->file('chequeUpload');
-                            $fileName = $request->userId . '' . rand(00000000, 99999999) . '.' . $file->getClientOriginalExtension();
-                            Storage::disk('ftp')->put("bank/" . $fileName, fopen($file, 'r+'));
-                            $fileupload = File::create(['file_path' => '/public/storage/kyc/bank/', 'name' => $fileName]);
-                            $check_kyc->bank_file = $fileupload->id;
 
                             if ($check_kyc->update()) {
-                                $status = 'unverified'; //0 - unverified,1 - pending ,2 - verified,3 - rejected
-                                if ($check_kyc->bank_kyc == 1) {
-                                    $status = 'pending';
-                                } else if ($check_kyc->bank_kyc == 2) {
-                                    $status = 'verified';
-                                } else if ($check_kyc->bank_kyc == 3) {
-                                    $status = 'rejected';
-                                }
-                                return response()->json(["code" => 200, "status" => "success", "message" => "Your Bank Verification status is " . $status]);
+
+                                $success['bank_kyc'] = '' . $check_kyc->bank_kyc; //0 - unverified,1 - pending ,2 - verified,3 - rejected
+
+                                // if($user->va_id == "") {
+
+                                //     $this->create_va_test($user->username);
+
+                                // } else {
+
+                                //     $this->update_va($request->user_id);
+
+                                // }
+
+                                return $this->sendSuccess($success, "Bank Verification submitted successfully");
                             } else {
-                                return response()->json(["code" => 400, "status" => "error", "message" => "Unable to complete your Bank Verification now"]);
+
+                                return $this->sendError("Unable to complete your Bank Verification now");
                             }
                         } else {
-                            return response()->json(["code" => 400, "status" => "error", "message" => $validateBank['message'] ?? 'Invalid Account Number']);
+
+                            return $this->sendError($validateBank['message'] ?? 'Invalid Account Number');
                         }
                     } else {
-                        return response()->json(["code" => 400, "status" => "error", "message" => $validateBank['message'] ?? 'Unable to Validate your Bank Account']);
+
+                        return $this->sendError($validateBank['message'] ?? 'Unable to Validate your Bank Account');
                     }
                 } else {
-                    return response()->json(["code" => 400, "status" => "error", "message" => $validateIfsc['message'] ?? 'Invalid IFSC Code']);
+
+                    return $this->sendError($validateIfsc['message'] ?? 'Invalid IFSC Code');
                 }
             }
         }
-        return response()->json(["code" => 400, "status" => "error", "message" => "Something went wrong please logout and login again!"]);
+
+        return $this->sendError("Something went wrong please logout and login again!");
     }
 
 
 
     public function submitSelfieKyc(Request $request)
+
     {
+
         Log::info('SELFIE KYC : ' . json_encode($request->except('selfie_image')));
+
         $validator = Validator::make($request->all(), [
-            'userId' => 'required',
-            'selfieImage' => 'required'
+
+            'user_id' => 'required',
+
+            'selfie_image' => 'required',
+
+            // 'latitude' => 'required',
+
+            // 'longitude' => 'required'
+
         ]);
 
+
+
         if ($validator->fails()) {
-            return response()->json(["code" => 400, "status" => "error", "message" => $validator->errors()->first()]);
+
+            return $this->sendError($validator->errors()->first());
         }
-        $user = User::find((int) $request->userId);
-        $check_kyc = Ekyc::where('user_id', $request->userId)->first();
+
+        $user = User::find((int) $request->user_id);
+
+        $check_kyc = Ekyc::where('user_id', $request->user_id)->first();
+
         if ($check_kyc) {
+
             if ($check_kyc->selfie_kyc == '1') {
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Selfie Verification is pending at admin approval']);
+
+                return $this->sendError('Selfie Verification is pending at admin approval');
             } elseif ($check_kyc->selfie_kyc == 2) {
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Selfie Verification is already completed']);
+
+                return $this->sendError('Selfie Verification is already completed');
             }
+
             if ($check_kyc->aadhaar_image == "") {
-                return response()->json(["code" => 400, "status" => "error", "message" => 'Please complete Aadhaar Verification to continue']);
+
+                return $this->sendError('Please complete Aadhaar Verification to continue');
             }
+
+            $file = base64_decode($request->selfie_image);
+
+            $name = $request->user_id . '' . rand(00000000, 99999999) . '.' . 'jpg';
+
+            $upload = file_put_contents(public_path() . '/storage/kyc/selfie/' . $name, $file);
 
             $aadhaar_img = File::where('id', $check_kyc->aadhaar_image)->pluck('file_path')->first();
-            $aadhaar_img = base64_encode(file_get_contents(Config::get('constants.WEBSITE_BASE_URL') . $aadhaar_img));
+
+            // return $this->sendError($request->selfie_image);
+
+            $aadhaar_img = base64_encode(file_get_contents(public_path() . $aadhaar_img));
 
             $status = '1';
+
             $data = array(
+
                 'doc_img' => $aadhaar_img,
-                'selfie' => base64_encode(file_get_contents($request->file('selfieImage')))
+
+                'selfie' => $request->selfie_image
+
             );
+
             $percent = '0';
+
             $response = Http::withHeaders([
+
                 'Referer' => Config::get('constants.WEBSITE_BASE_URL'),
+
                 'API-KEY' => Config::get('constants.APICLUB_API_KEY')
+
             ])->post('https://api.apiclub.in/api/v1/face_match', $data);
 
             if ($response->successful()) {
+
                 $resp = $response->json();
+
                 Log::info('APICLUB SELFIE KYC : ' . json_encode($resp));
+
                 if ($resp['code'] == 200 && $resp['status'] == 'success') {
+
                     $percent = (float) $resp['response']['match_score'];
+
                     if ($percent >= 70) {
+
                         $status = '2';
                     }
-                    $name = $request->userId . '' . rand(00000000, 99999999) . '.' . 'jpg';
-                    Storage::disk('ftp')->put("selfie/" . $name, fopen($request->file('selfieImage'), 'r+'));
-                    $fileupload = File::create(['file_path' => '/public/storage/kyc/selfie/' . $name, 'name' => $name]);
                 } else {
-                    return response()->json(["code" => 400, "status" => "error", "message" => $resp['response'] ?? 'Something went wrong']);
+
+                    return $this->sendError($resp['response'] ?? 'Something went wrong');
                 }
             }
 
-            $user->selfie_id = $fileupload->id;
-            $user->success_score = "".$percent;
+            $fileupload = File::create(['file_path' => '/storage/kyc/selfie/' . $name, 'name' => $name]);
+
+            // $user->selfie_id = $fileupload->id;
+
+            // $user->success_score = "".$percent;
+
             // $user->pic_lat = $request->latitude;
+
             // $user->pic_lan = $request->longitude;
-            $user->update();
+
+            // $user->update();
 
             $check_kyc->selfie_image = $fileupload->id;
+
             $check_kyc->selfie_kyc = $status;
+
             $check_kyc->success_score = "" . $percent;
+
             $check_kyc->latitude = $request->latitude ?? "";
+
             $check_kyc->longitude = $request->longitude ?? "";
 
             if ($check_kyc->update()) {
-                $status = 'unverified'; //0 - unverified,1 - pending ,2 - verified,3 - rejected
-                if ($check_kyc->selfie_kyc == 1) {
-                    $status = 'pending';
-                } else if ($check_kyc->selfie_kyc == 2) {
-                    $status = 'verified';
-                } else if ($check_kyc->selfie_kyc == 3) {
-                    $status = 'rejected';
-                }
-                return response()->json(["code" => 200, "status" => "success", "message" => "Selfie Kyc status is " . $status]);
+
+                $success['selfie_kyc'] = '' . $check_kyc->selfie_kyc; //0 - unverified,1 - pending ,2 - verified,3 - rejected
+
+                return $this->sendSuccess($success, "Selfie Kyc submitted successfully");
             } else {
-                return response()->json(["code" => 400, "status" => "error", "message" => "Unable to complete your Selfie Kyc now"]);
+
+                return $this->sendError("Unable to complete your Selfie Kyc now");
             }
         }
 
-        return response()->json(["code" => 400, "status" => "error", "message" => "Something went wrong please logout and login again!"]);
+        return $this->sendError("Something went wrong please logout and login again!");
     }
 
+
+
     public function submitBusinessKyc(Request $request)
+
     {
+
         $validator = Validator::make($request->all(), [
-            'userId' => 'required',
-            'businessName' => 'required',
-            'businessAddress' => 'required',
-            'businessCategory' => 'required',
-            // 'shop_lat' => 'required',
-            // 'shop_long' => 'required',
-            'state' => 'required',
-            'city' => 'required',
-            'pincode' => 'required',
-            'shopFrontImage' => 'required',
-            'shopInsideImage' => 'required',
+
+            'user_id' => 'required',
+
+            'business_name' => 'required',
+
+            'business_address' => 'required',
+
+            'business_category' => 'required',
+
+            'shop_lat' => 'required',
+
+            'shop_long' => 'required',
+
+            'state_id' => 'required',
+
+            'district_id' => 'required',
+
+            'zip_code' => 'required',
+
+            'shop_front_image' => 'required',
+
+            'shop_inside_image' => 'required',
+
         ]);
 
+
+
         if ($validator->fails()) {
+
             Log::info('API : ' . $validator->errors()->first());
-            return response()->json(["code" => 400, "status" => "error", "message" => $validator->errors()->first()]);
+
+            return $this->sendError($validator->errors()->first());
         }
 
-        $check_kyc = Ekyc::where('user_id', $request->userId)->first();
+        $check_kyc = Ekyc::where('user_id', $request->user_id)->first();
+
         if ($check_kyc) {
+
             if ($check_kyc->business_kyc == '1') {
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Business Verification is pending at admin approval']);
+
+                return $this->sendError('Business Verification is pending at admin approval');
             } elseif ($check_kyc->business_kyc == 2) {
-                return response()->json(["code" => 200, "status" => "success", "message" => 'Business Verification is already completed']);
+
+                return $this->sendError('Business Verification is already completed');
             }
-            $ffile = base64_decode($request->shopFrontImage);
-            $fname = $request->userId . '' . rand(00000000, 99999999) . '.' . 'jpg';
+
+            $ffile = base64_decode($request->shop_front_image);
+
+            $fname = $request->user_id . '' . rand(00000000, 99999999) . '.' . 'jpg';
+
             file_put_contents(public_path() . '/storage/kyc/shop/' . $fname, $ffile);
-            $fileupload = File::create(['file_path' => '/storage/kyc/shop/' . $fname, 'name' => $fname]);
-            $ff = $fileupload->id;
-            $ifile = base64_decode($request->shopInsideImage);
-            $iname = $request->userId . '' . rand(00000000, 99999999) . '.' . 'jpg';
+
+            $ffileupload = File::create(['file_path' => '/storage/kyc/shop/' . $fname, 'name' => $fname]);
+
+            $ff = $ffileupload->id;
+
+
+
+            $ifile = base64_decode($request->shop_inside_image);
+
+            $iname = $request->user_id . '' . rand(00000000, 99999999) . '.' . 'jpg';
+
             file_put_contents(public_path() . '/storage/kyc/shop/' . $iname, $ifile);
+
             $ifileupload = File::create(['file_path' => '/storage/kyc/shop/' . $iname, 'name' => $iname]);
+
             $if = $ifileupload->id;
+
             $status = '1';
-            $check_kyc->business_kyc = $status;
-            $check_kyc->business_name = $request->businessName;
-            $check_kyc->business_address = $request->businessAddress;
-            $check_kyc->pincode = $request->pincode;
-            $check_kyc->city = $request->state;
-            $check_kyc->state = $request->city;
-            $check_kyc->category = $request->businessCategory;
+
+            $check_kyc->business_kyc = '1';
+
+            $check_kyc->business_name = $request->business_name;
+
+            $check_kyc->business_address = $request->business_address;
+
+            $check_kyc->pincode = $request->zip_code;
+
+            $check_kyc->city = $request->district_id;
+
+            $check_kyc->state = $request->state_id;
+
+            $check_kyc->category = $request->business_category;
+
             $check_kyc->front_image = $ff;
+
             $check_kyc->inside_image = $if;
-            // $check_kyc->blat = $request->shop_lat;
-            // $check_kyc->blong = $request->shop_long;
+
+            $check_kyc->blat = $request->shop_lat;
+
+            $check_kyc->blong = $request->shop_long;
+
             $check_kyc->update();
+
             $success['business_kyc'] = '' . $check_kyc->business_kyc; //0 - unverified,1 - pending ,2 - verified,3 - rejected
-            return response()->json(["code" => 200, "status" => "success", "message" => "Business Verification is pending for admin approval"]);
+
         }
-        return response()->json(["code" => 400, "status" => "error", "message" => "Something went to wrong!"]);
+
+        return $this->sendSuccess($success, "Business Verification is pending for admin approval");
     }
 
 
 
     public function getPincode(Request $request)
     {
+
         $pincode = $request->pincode;
+
         $response = Http::withHeaders([
+
             'Referer' => Config::get('constants.WEBSITE_BASE_URL'),
+
             'API-KEY' => Config::get('constants.APICLUB_API_KEY')
+
         ])->post('https://api.apiclub.in/api/v1/pincode_info', array('pincode' => $pincode));
+
         if ($response->successful()) {
+
             $resp = $response->json();
-            // dd($resp);
+
             if ($resp['code'] == 200 && $resp['status'] == 'success') {
-                $city_name = $resp['response'][0]['division_name'];
+
+                $city_name = $resp['response'][0]['region_name'];
+
                 $state_name = $resp['response'][0]['state_name'];
+
                 $state = State::where('state_name', 'LIKE', '%' . $state_name . '%')->first();
-                $cities = City::where('state_id',$state->state_id)->get();
-                $city_id = 0;
-                foreach($cities as $city) {
-                    similar_text($city->city_name,$city_name,$percent);
-                    if($percent > 70) {
-                        $city_id = $city->city_id;
-                        $city_name = $city->city_name;
-                        break;
-                    }
-                }
+
+                // $cities = City::where('state_id',$state->state_id)->get();
+
+                // foreach($cities as $id=>$city) {
+
+                //     similar_text($city->city_name,$city_name,$percent);
+
+                //     if($percent > 70) {
+
+                //         $city_id = $id;
+
+                //         $city_name = $city->region_name;
+
+                //         break;
+
+                //     }
+
+                // }
+
                 $res = array(
+
                     'state_name' => $state->state_name ?? "",
+
                     'state_id' => $state->state_id ?? 0,
+
                     'city_name' => $city_name ?? "",
-                    'city_id' => $city_id ?? 0
+
+                    'city_id' => 0
+
                 );
+
                 Log::info('API : ' . $response->body());
-                return response()->json(['code' => 200, 'status' => 'success', 'data' => $res]);
+
+                return $this->sendSuccess($res);
             } else {
 
-                return response()->json(['code' => 400, 'status' => 'error', 'message' => 'Something went to wrong!']);
+                return $this->sendError($resp['response'] ?? 'Something went wrong');
             }
         }
 
@@ -5967,39 +6592,70 @@ class UserController extends Controller
 
     public function CheckAadharDigit($partial)
     {
+
+
+
         $dihedral = array(
+
             array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+
             array(1, 2, 3, 4, 0, 6, 7, 8, 9, 5),
+
             array(2, 3, 4, 0, 1, 7, 8, 9, 5, 6),
+
             array(3, 4, 0, 1, 2, 8, 9, 5, 6, 7),
+
             array(4, 0, 1, 2, 3, 9, 5, 6, 7, 8),
+
             array(5, 9, 8, 7, 6, 0, 4, 3, 2, 1),
+
             array(6, 5, 9, 8, 7, 1, 0, 4, 3, 2),
+
             array(7, 6, 5, 9, 8, 2, 1, 0, 4, 3),
+
             array(8, 7, 6, 5, 9, 3, 2, 1, 0, 4),
+
             array(9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+
         );
 
         $permutation = array(
+
             array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
+
             array(1, 5, 7, 6, 2, 8, 3, 0, 9, 4),
+
             array(5, 8, 0, 3, 7, 9, 6, 1, 4, 2),
+
             array(8, 9, 1, 6, 0, 4, 3, 5, 2, 7),
+
             array(9, 4, 5, 3, 1, 2, 6, 8, 7, 0),
+
             array(4, 2, 8, 6, 5, 7, 3, 9, 0, 1),
+
             array(2, 7, 9, 3, 8, 0, 6, 4, 1, 5),
+
             array(7, 0, 4, 6, 9, 1, 3, 2, 5, 8)
+
         );
+
+
 
         $inverse = array(0, 4, 3, 2, 1, 5, 6, 7, 8, 9);
 
+
+
         settype($partial, "string");
+
         $partial = strrev($partial);
+
         $digitIndex = 0;
 
         for ($i = 0; $i < strlen($partial); $i++) {
+
             $digitIndex = $dihedral[$digitIndex][$permutation[($i + 1) % 8][$partial[$i]]];
         }
+
         return $inverse[$digitIndex];
     }
 
@@ -8766,7 +9422,7 @@ class UserController extends Controller
 
         $user = User::create([
 
-            'first_name' => $request->get('first_name') . "" . $request->get('last_name'),
+            'first_name' => $request->get('first_name') . " " . $request->get('last_name'),
 
             'last_name' => '', //confirm
 
@@ -8848,10 +9504,6 @@ class UserController extends Controller
 
         ]);
 
-       
-
-       
-
         if ($user) {
 
             $message = $this->prepareRegistrationMsg($mpin, $password, $username);
@@ -8898,77 +9550,198 @@ class UserController extends Controller
             }
         }
     }
-
-    public function getAuthUserKycStatus() {
-        $userId = Auth::user()->userId;
-
-        if ($userId) {
-            $kycDetails = Ekyc::where('user_id', $userId)->first();
-            if (!empty($kycDetails)) {
-                return response()->json(["code" => 200, "status" => "success", "data" => $kycDetails]);
-            } else {
-                return response()->json(["code" => 400, "status" => "error", "message" => "Your kycDetails not found."]);
-            }
-        } else {
-            return response()->json(['code' => 400, "status" => "error", "message" => "Your session timeout."]);
-        }       
-    }
-
-    public function createRetailerMember(Request $request)
+    
+    public function createnewdistributor()
     {
-       $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:tbl_users,email,' . $request->user_id . ',userId',
-            'state_id' => 'required|numeric',
-            'district_id' => 'required|numeric',
-            'mobile' => 'numeric|min:10|unique:tbl_users,mobile,' . $request->user_id . ',userId',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(["code" => 400, "status" => "error", "message" => $validator->errors()]);
-        }
-        $mpin = rand(1000, 9999);
-        $password = rand(100000, 999999);
-        $username = $this->generateAutoUsername(Role::getIdFromAlias($request->type));
-        $statusMsg = "";
-        $user = User::create([
-            'first_name' => $request->get('first_name'),
-            'last_name' => $request->get('last_name'),
-            'email' => $request->get('email'),
-            'password' => Hash::make($password),
-            'username' => $username,
-            'mpin' => $mpin,
-            'mobile' => $request->get('mobile'),
-            'alternate_mob_no' => ($request->get('alternate_mob_no') ? $request->get('alternate_mob_no') : ''),
-            'roleId' => Role::getIdFromAlias($request->type),
-            'parent_role_id' => $request->role_id,
-            'parent_user_id' => $request->user_id,
-            'package_id' => 1,
-            'state_id' => $request->get('state_id'),
-            'district_id' => $request->get('district_id'),
-            'address' => $request->get('address'),
-            'zip_code' => $request->get('zip_code'),
-            'wallet_balance' => 0,
-            'commission_id' => '',
-            'createdDtm' => now(),
-            'createdBy' => $request->user_id
-        ]);
-        if ($user) {
-            $message = $this->prepareRegistrationMsg($mpin, $password, $username);
-            if ($message) {
-                $smsTemplateId = SmsTemplate::where('alias', Config::get('constants.SMS_TEMPLATE_ALIAS.USER_REGISTRATION.name'))->first();
-                $msgResponse = $this->sendSms($message, $request->get('mobile'), $smsTemplateId->template_id);
-                if ($msgResponse) {
-                    if (Role::getIdFromAlias($request->type) == Config::get('constants.RETAILER')) {
-                        $resultById = User::where('email', $request->get('email'))->where('mobile', $request->get('mobile'))->get()->first();
-                        $this->insertAllowServices($resultById->userId);
-                    }
-                    $statusMsg = "Member registered successfully!!";
-                    return response()->json(["code" => 200, "status" => "success", "message" => $statusMsg]);
-                }
-            }
-        } else {
-            return response()->json(["code" => 400, "status" => "error", "message" => "Unable to create member!"]);
-        }        
+
+        //$distributor_users = User::where('roleId', Config::get('constants.DISTRIBUTOR'))->orderBy('first_name')->get();
+        return view('modules.user.createNewDistributorPm');
     }
+
+
+
+    public function storenewdistributor(Request $request)
+    {
+
+
+        $validator = Validator::make($request->all(), [
+
+            'first_name' => 'required',
+
+            'last_name' => 'required',
+
+            'email_id' => 'required|string|email|max:255|unique:tbl_users,email',
+
+            'mobile_no' => 'required|unique:tbl_users,mobile',
+
+            'parent_user_id' => 'required',
+            'parent_role_id' => 'required',
+            'parent_package_id' => 'required',
+
+
+
+        ]);
+
+        if ($validator->fails()) {
+
+            $error = $validator->errors()->first();
+
+            $fos_users = User::where('roleId', Config::get('constants.FOS'))->orderBy('first_name')->get();
+
+            return view('modules.user.createNewDistributorPm', compact('error', 'fos_users'));
+        }
+
+        $otp = '';
+
+        $mpin = rand(1000, 9999);
+
+        $password = rand(100000, 999999);
+
+        $loggedOtp = rand(100000, 999999);
+
+        $roleId = Config::get('constants.DISTRIBUTOR');
+
+        $username = $this->generateAutoUsername($roleId);
+       
+        $statusMsg = "";
+
+        $success = null;
+
+        $pg_options = '{"upi":{"mode": "UPI","status":1,"charge":0,"type": "%"},"rupay_card":{"mode": "RUPAY_CARD","status":0,"charge": 0,"type": "%"},"debit_card":{"mode": "DEBIT_CARD","status": 0,"charge": 1.50,"type": "%"},"credit_card":{"mode": "CREDIT_CARD","status": 0,"charge": 1.50,"type": "%"},"prepaid_card":{"mode": "PREPAID_CARD","status": 0,"charge": 1.50,"type": "%"},"corporate_card":{"mode": "CORPORATE_CARD","status": 0,"charge": 2.80,"type": "%"},"wallet":{"mode": "WALLET","status":0,"charge": 2.30,"type": "%"},"net_banking":{"mode": "NET_BANKING","status":0,"charge": 2.30,"type": "%"}}';
+
+        $user = User::create([
+
+            'first_name' => $request->get('first_name') . " " . $request->get('last_name'),
+
+            'last_name' => '', //confirm
+
+            'user_dob' => now(),
+
+            'email' => $request->get('email_id'),
+
+            'password' => Hash::make($password),
+
+            'username' => $username,
+
+            'mpin' => $mpin,
+
+            'user_code' => '',
+
+            'mobile' => $request->get('mobile_no'),
+
+            'business_name' => $request->get('business_name'),
+
+            'alternate_mob_no' => '',
+
+            'pan_no' => '',
+
+            'aadhar_no' => '',
+
+            'gst_no' => '',
+
+            'whatsapp_no' => '',
+
+            'telegram_no' => '',
+
+            'roleId' => $roleId,
+
+            'min_amount_deposit' => 1000,
+
+            'min_balance' => 200,
+
+            'max_amount_deposit' => 10000,
+
+            'min_amount_withdraw' => 100,
+
+            'max_amount_withdraw' => 10000,
+
+            'parent_role_id' => $request->parent_role_id ?? Config::get('constants.MASTER_DISTRIBUTOR'),
+
+            'parent_user_id' => $request->parent_user_id,
+
+            'package_id' => $request->package_id ?? '9',
+
+            'state_id' => '',
+
+            'district_id' => '',
+
+            'activated_status' => Config::get('constants.ACTIVE'),
+
+            'address' => '',
+
+            'fos_id' => $request->fos ?? null,
+
+            'zip_code' => '',
+
+            'store_name' => '',
+
+            'store_category_id' => 0,
+
+            'wallet_balance' => 0,
+
+            'commission_id' => '',
+
+            'pg_options' => $pg_options,
+
+            'pg_status' => '0',
+
+            'createdDtm' => date('Y-m-d H:i:s'),
+
+            'logged_otp' => 0000,
+
+            'createdBy' => 0,
+
+        ]);
+
+       
+
+       
+
+        if ($user) {
+
+            $message = $this->prepareRegistrationMsg($mpin, $password, $username);
+
+            if ($message) {
+
+                $email = $request->get('email_id');
+
+                $name = $request->get('name');
+
+                $data = array(
+
+                    'email' => $email,
+
+                    'name' => $name,
+
+                    'username' => $username,
+
+                    'password' => $password,
+
+                    'mpin' => $mpin
+
+                );
+
+                $send_email = Mail::send('mail.welcomeDT', $data, function ($msg) use ($email, $name) {
+
+                    $msg->to($email, $name);
+
+                    $msg->subject('Welcome to PayMama');
+
+                    $msg->from('hello@paymamaapp.in', 'PayMama - Business Made Easy');
+                });
+
+                $smsTemplateId = SmsTemplate::where('alias', Config::get('constants.SMS_TEMPLATE_ALIAS.USER_REGISTRATION.name'))->first();
+
+                $this->sendSms($message, $request->get('mobile_no'), $smsTemplateId->template_id);
+
+                $statusMsg = "Congratulations " . $name . ". Verification successful. Check Mobile for Login Credentials.";
+
+                $success = 1;
+                $distributor_users = User::where('roleId', Config::get('constants.DISTRIBUTOR'))->orderBy('first_name')->get();
+
+                return view('modules.user.createNewDistributorPm', compact('success', 'distributor_users'));
+            }
+        }
+    }
+
 }

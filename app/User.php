@@ -48,6 +48,7 @@ class User extends Authenticatable
         'address',
         'zip_code',
         'wallet_balance',
+        'pg_wallet_balance',
         'commission_id',
         'store_name',
         'store_category_id',
@@ -199,6 +200,33 @@ class User extends Authenticatable
         return $response;
     } 
     
+    public static function getParentId($userId){
+        $response = "";
+        if (isset($userId) && $userId) {
+            $response = self::where('userId', $userId)->pluck('parent_user_id')->first();
+        }
+
+        return $response;
+    } 
+    
+    public static function getUserIdByParent($userId){
+        $response = "";
+        if (isset($userId) && $userId) {
+            $response = self::where('parent_userId', $userId)->pluck('user_id')->first();
+        }
+
+        return $response;
+    } 
+    
+    public static function getPackageId($userId){
+        $response = "";
+        if (isset($userId) && $userId) {
+            $response = self::where('userId', $userId)->pluck('package_id')->first();
+        }
+
+        return $response;
+    }
+    
     public function ekyc(){
         return $this->hasOne('App\Ekyc','user_id','userId');
     }
@@ -218,4 +246,5 @@ class User extends Authenticatable
     public function parentuser(){
         return $this->hasOne('App\User','userId','parent_user_id');
     }
+    
 }

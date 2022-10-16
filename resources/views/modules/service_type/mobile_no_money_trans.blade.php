@@ -284,7 +284,10 @@
                                     </thead>
                                 
                                 <tbody>
-                                    @if($sender_receipient_list['status'] == 'true')
+                                <?php
+                                //print_r($sender_receipient_list);
+                                ?>
+                                    @if(@$sender_receipient_list['status'] == 'true')
                                         @if(count($sender_receipient_list['result']['recipient_list'])>0)
 
                                             @foreach($sender_receipient_list['result']['recipient_list'] as $recip_key => $recip_value)
@@ -911,7 +914,7 @@
                                     <input type="hidden" id="mobile_no" name="mobile_no" value="{{  $data['mobile_no'] }}">
                                     <input type="hidden" id="operator_id" name="operator_id" value="{{ $data['operator_id'] }}">
                                     <input type="hidden" id="operator_name" name="operator_name" value="{{ $data['operator_name'] }}">
-                                    <input type="hidden" id="api" name="api" value="{{ Config::get('constants.MONEY_TRANSFER.VERIFY_SENDER_REG_API') }}">
+                                    <input type="text" id="api" name="api" value="{{ Config::get('constants.MONEY_TRANSFER.VERIFY_SENDER_REG_API') }}">
                                     <input type="hidden" id="user_id" name="user_id" value="{{ Auth::user()->userId }}">
                                     <input type="hidden" id="role_id" name="role_id" value="{{ Auth::user()->roleId }}">
                                     <input type="hidden" id="user_token" name="user_token" value="{{ App\UserLoginSessionDetail::getUserApikey(Auth::user()->userId) }}">

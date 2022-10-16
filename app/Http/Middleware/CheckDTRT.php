@@ -17,7 +17,7 @@ class CheckDTRT
      */
     public function handle($request, Closure $next)
     {
-        if ((Auth::check() && Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) || (Auth::check() && Auth::user()->roleId == Config::get('constants.RETAILER')) || (Auth::check() && Auth::user()->roleId == Config::get('constants.ADMIN'))) {
+        if ((Auth::check() && Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')) || (Auth::check() && Auth::user()->roleId == Config::get('constants.RETAILER')) || (Auth::check() && Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR')) || (Auth::check() && Auth::user()->roleId == Config::get('constants.ADMIN'))) {
             return $next($request);
         }
         return redirect('/permission-denied');

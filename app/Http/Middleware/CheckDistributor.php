@@ -17,6 +17,7 @@ class CheckDistributor
      */
     public function handle($request, Closure $next)
     {   
+        
         if (Auth::check() && Auth::user()->roleId != Config::get('constants.DISTRIBUTOR')) {
             return redirect('/permission-denied');
         }

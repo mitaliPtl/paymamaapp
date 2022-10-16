@@ -7,8 +7,8 @@ use App\KycDetail;
 use App\Role;
 use App\PackageSetting;
 use App\TransactionDetail;
+use App\PGWalletTransactionDetail;
 use App\ApiSetting;
-use App\Ekyc;
 use App\User;
 use App\OperatorSetting;
 use App\OffersNotice;
@@ -58,6 +58,7 @@ class HomeController extends Controller
         $totalUser = User::all()->count();
         $rTCount = User::where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.RETAILER')))->get()->count();
         $dTCount = User::where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.DISTRIBUTOR')))->get()->count();
+        $MdTCount = User::where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR')))->get()->count();
         $fosCount = User::where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.FOS')))->get()->count();
         $totalFund = User::where('roleId', '!=', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.SYSTEM_ADMIN')))->pluck('wallet_balance')->sum();
         // $totalApiBalance = ApiSetting::pluck('balance')->sum();
@@ -87,6 +88,7 @@ class HomeController extends Controller
 
         //Recharge and Bill Payment
         $apiKey = UserLoginSessionDetail::getUserApikey(Auth::user()->userId);
+        
         $operatorList = OperatorSetting::with('servicesType')->where('is_deleted', Config::get('constants.NOT-DELETED'))
                                 ->where('activated_status', Config::get('constants.ACTIVE'))
                                 ->leftJoin('tbl_files', 'tbl_operator_settings.operator_logo_file_id', '=', 'tbl_files.id')
@@ -128,6 +130,7 @@ class HomeController extends Controller
                             "role_id"=> $user_dtls->roleId,
                             "type"=> "WEBSITE",
                             ];
+                            
         $homeSlider = Http::post( Config::get('constants.HOME_BANNER_SLIDER') , $reqBody_slider);
         $homeSlider = (isset($homeSlider) && $homeSlider) ? $homeSlider->json() : [];
         // print_r($homeSlider);die();
@@ -136,27 +139,48 @@ class HomeController extends Controller
 
         //distrubutorhome
         $userList = User::with(['ekyc'])->where('isDeleted', Config::get('constants.NOT-DELETED'))
-                        ->where('userId', '!=','1');
-        if($request->has('agentid') && $request->agentid !=null){
-            $userList=  $userList->where('username',$request->agentid);
-        }
-        if($request->has('agentname') && $request->agentname !=null){
-            $userList=  $userList->where('first_name',$request->agentname);
-        }
-        if($request->has('agentmobile') && $request->agentmobile !=null){
-            $userList=  $userList->where('mobile',$request->agentmobile);
-        }
-        $userList=  $userList->orderBy('createdDtm','DESC')
-        ->orderBy('updatedDtm','DESC')->where('roleId', 4)->where('tbl_users.parent_user_id', Auth::id())
-        ->where('tbl_users.parent_role_id', Auth::user()->roleId)->get();
-        $userList = app('App\Http\Controllers\User\UserController')->modifyUserList($userList);
-        $all_menu = DB::table('tbl_menu')->get();
-        $allRoles = Role::where('is_deleted', Config::get('constants.NOT-DELETED'))->orderBy('last_modified_date','DESC')->get();
-        $allPackages = PackageSetting::where('activated_status', Config::get('constants.ACTIVE'))->where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
-        $allServices = ServicesType::where('activated_status', Config::get('constants.ACTIVE'))->where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
-        $ekycDetails = Ekyc::where('user_id', Auth::user()->userId)->first();
 
-        return view('home_new', compact('ekycDetails', 'user_dtls','homeSlider','biller_data','userList','all_menu','allRoles','allPackages','allServices','biller','apiKey','operatorList','paymentType', 'serviceList', 'pendingBalReq', 'totalUser', 'rTCount', 'dTCount', 'fosCount', 'pendingKYCReq', 'totalFundWithAdmin', 'totalFund', 'newMembersCount', 'transaction','totalApiBalance', 'pendingComplaints', 'all_offers_notice'));
+                        ->where('userId', '!=','1');
+
+                       
+                        if($request->has('agentid') && $request->agentid !=null){
+                            $userList=  $userList->where('username',$request->agentid);
+                        }
+
+                        if($request->has('agentname') && $request->agentname !=null){
+                            $userList=  $userList->where('first_name',$request->agentname);
+                        }
+
+                        if($request->has('agentmobile') && $request->agentmobile !=null){
+                            $userList=  $userList->where('mobile',$request->agentmobile);
+                        }
+
+                      if( Auth::user()->roleId == Config::get('constants.DISTRIBUTOR')){
+                      $userList=  $userList->orderBy('createdDtm','DESC')
+
+                        ->orderBy('updatedDtm','DESC')->where('roleId', 4)->where('tbl_users.parent_user_id', Auth::id())
+
+                        ->where('tbl_users.parent_role_id', Auth::user()->roleId)->get();
+                       }elseif( Auth::user()->roleId == Config::get('constants.MASTER_DISTRIBUTOR') ){
+                        $userList=  $userList->orderBy('createdDtm','DESC')
+
+                        ->orderBy('updatedDtm','DESC')->where('roleId', 2)->where('tbl_users.parent_user_id', Auth::id())
+
+                        ->where('tbl_users.parent_role_id', Auth::user()->roleId)->get();  
+                       } 
+                      
+                       $userList = app('App\Http\Controllers\User\UserController')->modifyUserList($userList);
+
+                       $all_menu = DB::table('tbl_menu')->get();
+
+                       $allRoles = Role::where('is_deleted', Config::get('constants.NOT-DELETED'))->orderBy('last_modified_date','DESC')->get();
+               
+                       $allPackages = PackageSetting::where('activated_status', Config::get('constants.ACTIVE'))->where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
+               
+                       $allServices = ServicesType::where('activated_status', Config::get('constants.ACTIVE'))->where('is_deleted', Config::get('constants.NOT-DELETED'))->get();
+               
+       
+        return view('home_new', compact('homeSlider','biller_data','userList','all_menu','allRoles','allPackages','allServices','biller','apiKey','operatorList','paymentType', 'serviceList', 'pendingBalReq', 'totalUser', 'rTCount', 'dTCount', 'MdTCount', 'fosCount', 'pendingKYCReq', 'totalFundWithAdmin', 'totalFund', 'newMembersCount', 'transaction','totalApiBalance', 'pendingComplaints', 'all_offers_notice'));
     }
     
     public function uathome(Request $request)
@@ -165,6 +189,7 @@ class HomeController extends Controller
         $totalUser = User::all()->count();
        $rTCount = User::where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.RETAILER')))->get()->count();
         $dTCount = User::where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.DISTRIBUTOR')))->get()->count();
+        $MdTCount = User::where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR')))->get()->count();
         $fosCount = User::where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.FOS')))->get()->count();
         $totalFund = User::where('roleId', '!=', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.SYSTEM_ADMIN')))->pluck('wallet_balance')->sum();
         // $totalApiBalance = ApiSetting::pluck('balance')->sum();
@@ -241,7 +266,7 @@ class HomeController extends Controller
         $all_offers_notice = OffersNotice::where('notice_isDeleted','0')->where('notice_type',Config::get('constants.OFFERS_NOTICE_TYPE.ALERT'))->get();
         $all_offers_notice = $this->modified_RT_DT($all_offers_notice,$user_dtls->roleId);
        
-        return view('uat_home_new', compact('homeSlider','biller_data','biller','apiKey','operatorList','paymentType', 'serviceList', 'pendingBalReq', 'totalUser', 'rTCount', 'dTCount', 'fosCount', 'pendingKYCReq', 'totalFundWithAdmin', 'totalFund', 'newMembersCount', 'transaction','totalApiBalance', 'pendingComplaints', 'all_offers_notice'));
+        return view('uat_home_new', compact('homeSlider','biller_data','biller','apiKey','operatorList','paymentType', 'serviceList', 'pendingBalReq', 'totalUser', 'rTCount', 'dTCount', 'MdTCount', 'fosCount', 'pendingKYCReq', 'totalFundWithAdmin', 'totalFund', 'newMembersCount', 'transaction','totalApiBalance', 'pendingComplaints', 'all_offers_notice'));
     }
     
     public function modified_RT_DT($records, $role_id){

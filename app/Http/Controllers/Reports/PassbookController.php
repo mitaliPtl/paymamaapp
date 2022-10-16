@@ -66,6 +66,9 @@ class PassbookController extends Controller
         } else if ($loggedInRole == Config::get('constants.RETAILER')) {
 
             $strAppend = "PASSBOOK_RT_FILTER";
+        }else if ($loggedInRole == Config::get('constants.MASTER_DISTRIBUTOR')) {
+
+            $strAppend = "PASSBOOK_MD_FILTER";
         }
 
         if ($strAppend) {
@@ -92,6 +95,9 @@ class PassbookController extends Controller
         } else if ($loggedInRole == Config::get('constants.RETAILER')) {
 
             $strAppend = "PASSBOOK_RT_TD";
+        }else if ($loggedInRole == Config::get('constants.MASTER_DISTRIBUTOR')) {
+
+            $strAppend = "PASSBOOK_MD_TD";
         }
 
         if ($strAppend) {

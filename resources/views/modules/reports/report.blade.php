@@ -55,11 +55,15 @@
                             @if(isset($totalCommission['total_ad_comm']) && $totalCommission['total_ad_comm'])
                             <button type="button" title="Total Admin Commission" class="btn btn-cyan info-button btn-md mr-2">Total Admin Com: {{ $totalCommission['total_ad_comm'] }}</button>
                             @endif
-
-                            @if(isset($total['total_amt']) && $total['total_amt'])
-                            <button type="button" title="Total Amount" class="btn btn-light info-button btn-md mr-2">Total Amount: {{ $total['total_amt'] }}</button>
+                            
+                            @if(isset($total['total_md_comm']) && $total['total_md_comm'])
+                            <button type="button" title="Total MD Commission" class="btn btn-success info-button btn-md mr-2">Total MD Com: {{ $total['total_md_comm'] }}</button>
                             @endif
-
+                            
+                            @if(isset($total['total_amt']) && $total['total_amt'])
+                            <button type="button" title="Total Commission" class="btn btn-light info-button btn-md mr-2">Total Amount: {{ $total['total_amt'] }}</button>
+                            @endif
+                            
                             @if(isset($total['total_trans_charges']) && $total['total_trans_charges'])
                             <button type="button" title="Total Amount" class="btn btn-light info-button btn-md mr-2">Total Transfer Charges: {{ $total['total_trans_charges'] }}</button>
                             @endif
@@ -100,7 +104,7 @@
                         <button type="button" title="Apply Filter" class="btn btn-outline-info btn-circle btn-md mr-2" data-toggle="collapse" data-target="#filterBox"><i class="fa fa-filter"></i></button>
                         <!-- <button type="button" title="Export" class="btn btn-outline-dark btn-circle btn-md mr-3" data-toggle="collapse" data-target="#exportBox"><i class="fa fa-download"></i></button> -->
                     </div>
-                    
+                   
                     <div class="col-11">
                     <div class="collapse show" id="filterBox">
                     @if(isset($filtersList) && $filtersList)
@@ -218,8 +222,10 @@
                     {{-- @else --}}
                     <table id="recharge-report-table" class="table table-striped table-bordered table-sm border is-data-table">
                     {{-- @endif --}}
+                        
                         <thead>
                             <tr>
+                           
                                 <th>S. NO</th>
                                 @foreach($rechargeReportTH as $i => $head)
                                     <th>{{ $rechargeReportTH[$i]['name'] }}</th>
@@ -227,8 +233,8 @@
                                
                             </tr>
                         </thead>
+                       
                         <tbody>
-                           
                             @foreach($rechargeReports as $index => $report)
                             
                                 <tr>
@@ -311,7 +317,7 @@
                                              </td>
                                              @elseif($head['label'] == 'account_no')
                                             <td class="{{ $rechargeReports[$index]['account_no'] }}">
-                                             {{ $rechargeReports[$index][$head['label']]}}
+                                             {{ $rechargeReports[$index][$head['label']] }}
                                              </td>
                                              @elseif($head['label'] == 'transaction_id')
                                             <td class="{{ $rechargeReports[$index]['transaction_id'] }}">
@@ -323,11 +329,30 @@
                                               {{strtoupper($rechargeReports[$index]['payment_type'])}}
                                              
                                              </td>
+                                             @elseif($head['label'] == 'rt_commission')
+                                            <td class="{{ $rechargeReports[$index]['rt_commission'] }}">
+                                              {{strtoupper($rechargeReports[$index]['rt_commission'])}}
                                              
-                                        @elseif($head['label'] == 'action')
+                                             </td>
+                                             @elseif($head['label'] == 'imps_name')
+                                            <td class="{{ $rechargeReports[$index]['imps_name'] }}">
+                                              {{strtoupper($rechargeReports[$index]['imps_name'])}}
+                                             
+                                             </td>
+                                             @elseif($head['label'] == 'bank_account_no')
+                                            <td class="{{ $rechargeReports[$index]['bank_account_no'] }}">
+                                              {{strtoupper($rechargeReports[$index]['bank_account_no'])}}
+                                             
+                                             </td>
+                                             @elseif($head['label'] == 'billerID')
+                                            <td class="{{ $rechargeReports[$index]['billerID'] }}">
+                                              {{strtoupper($rechargeReports[$index]['billerID'])}}
+                                             
+                                             </td>
+                                             @elseif($head['label'] == 'action')
                                             <td class="btn-group">
                                               
-                                                @if(array_key_exists("order_status",$rechargeReports[$index]))
+                                                @if(array_key_exists("order_status", $rechargeReports[$index]))
                                                     @if($rechargeReports[$index]['order_status'] != 'FAILED')
                                                    
                                                        @if($pageName == 'Money Transfer' or $pageName == 'ICICI_CASH_DEPOSIT' or $pageName == 'AEPS' or $pageName == 'AADHAR PAY' or $pageName == 'MINI STATEMENT')
@@ -339,14 +364,20 @@
                                                             <a class="btn btn-sm btn-cyan sync-transaction-btn" href="{{ route('sync_transaction',$rechargeReports[$index]['order_id']) }}" title="Sync Transaction" data-toggle="tooltip"><i class="mdi mdi-sync"></i></a>
                                                             @endif
                                                         @endif
-                                                        @if($user_dtls->roleId == Config::get('constants.RETAILER'))
+                                                        @if($user_dtls->roleId == Config::get('constants.RETAILER') || $user_dtls->roleId == Config::get('constants.MASTER_DISTRIBUTOR'))
                                                         <button class="btn btn-sm btn-danger add-complaint-btn" value="{{ $rechargeReports[$index]['order_id'] }}" title="Complaint" data-toggle="tooltip"><i class="mdi mdi-alert"></i></button>
                                                         @endif
-                                                        @if($pageName == 'UPI TRANSFER' && Auth::userRoleAlias() != Config::get('constants.ROLE_ALIAS.DISTRIBUTOR') )
+                                                        @if( ($pageName == 'UPI TRANSFER' && Auth::userRoleAlias() != Config::get('constants.ROLE_ALIAS.DISTRIBUTOR')))
                                                             <!-- <button type="button" id="view-invoice"  onclick="getSurcharge( {{ json_encode($report) }}, {{ $rechargeReports_forinvoice[$index] }}, {{ $index }})" class="btn btn-warning btn-sm"><i class="mdi mdi-printer"></i> View </button> -->
                                                             <button type="button" id="view-recipt"  onclick="getBillSurcharge( `{{ $rechargeReports[$index]['order_id'] }}` )" class="btn btn-warning btn-sm"><i class="mdi mdi-printer"></i> View </button>
                                                    
                                                         @endif
+                                                        
+                                                        @if( (Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.MASTER_DISTRIBUTOR')))
+                                                            <button type="button" id="view-recipt"  onclick="getBillSurcharge( `{{ $rechargeReports[$index]['order_id'] }}` )" class="btn btn-warning btn-sm"><i class="mdi mdi-printer"></i> View </button>
+                                                   
+                                                        @endif
+                                          
                                                     @endif
 
                                                     @if(Auth::userRoleAlias() == Config::get('constants.ROLE_ALIAS.SYSTEM_ADMIN') )
@@ -362,7 +393,7 @@
                                                         @if($pageName == 'Bill Payment')
                                                         <!-- <button type="button" id="view-invoice"  onclick="getSurchargeBill(  {{ $rechargeReports_forinvoice[$index] }}, {{ $index }})" class="btn btn-warning btn-sm"><i class="mdi mdi-printer"></i> View </button> -->
                                                         <button type="button" id="view-recipt" onclick="getBillSurcharge( `{{ $rechargeReports[$index]['order_id'] }}` )" class="btn btn-warning btn-sm"><i class="mdi mdi-printer"></i> View </button>
-                                                            @if($user_dtls->roleId == Config::get('constants.RETAILER'))
+                                                            @if($user_dtls->roleId == Config::get('constants.RETAILER') )
                                                             <button class="btn btn-sm btn-danger add-complaint-btn" value="{{ $rechargeReports[$index]['order_id'] }}" title="Complaint" data-toggle="tooltip"><i class="mdi mdi-alert"></i></button>
                                                             @endif
 

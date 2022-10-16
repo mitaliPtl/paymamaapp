@@ -22,6 +22,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
     ];
 
     /**
@@ -69,13 +70,13 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => \App\Http\Middleware\CheckAdmin::class,
         'distributor' => \App\Http\Middleware\CheckDistributor::class,
+        'master_distributor' => \App\Http\Middleware\CheckMasterDistributor::class,
         'retailer' => \App\Http\Middleware\CheckRetailer::class,
         'dtrt' => \App\Http\Middleware\CheckDTRT::class,
         'addt' => \App\Http\Middleware\CheckADDT::class,
         'verified' => \App\Http\Middleware\VerifyOtp::class,
         'is_logged_in' => \App\Http\Middleware\CheckIfLoggedIn::class,
         'admin-api' => \App\Http\Middleware\CheckAdApi::class,
-
         'paymentstatus' => \App\Http\Middleware\CheckPayment::class,
         'generalmiddleware' => \App\Http\Middleware\GeneralMiddleware::class,
         'activatedstatus' => \App\Http\Middleware\ActivatedStatusMiddleware::class,

@@ -41,7 +41,7 @@
             <!-- Container fluid  -->
             <!-- ============================================================== -->
             <div class="page-content container-fluid" id="do_transfer_page">
-                
+              Hello  
         @if(isset($money_transfer_response))
             @if($money_transfer_response['status'] == "true")
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -70,7 +70,7 @@
            
                 <div class="card material-card">
                     <div class="card-body">
-                        <h5 class="card-title mt-2 mb-2">Do Transaction</h5>
+                        <h5 class="card-title mt-2 mb-2">Do 1 Transaction</h5>
                         {{-- json_encode($receipientDtls) --}}
                         <!-- <form action="{{ route('transfer_money') }}" method="post" id="doTransactionForm"> -->
                         <form  method="post" id="doTransactionForm"  autocomplete="off">

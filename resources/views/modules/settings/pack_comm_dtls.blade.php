@@ -78,7 +78,7 @@
                                     </div>
                                 </div>
 
-                                @if($serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.MONEY_TRANSFER') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.Mini_Statement') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.AEPS') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.UPI_TRANSFER') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.AADHAR_PAY')  || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.ICICI_CASH_DEPOSIT'))
+                                @if($serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.MONEY_TRANSFER') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.Mini_Statement') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.AEPS') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.UPI_TRANSFER') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.AADHAR_PAY')  || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.ICICI_CASH_DEPOSIT') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.BANK_TRANSFER'))
                                 <div class="col-4">
                                     <div class="form-group">
                                         <label for="operator_id">Operator</label>
@@ -182,7 +182,7 @@
                 </div>
                 <!-- Mobile/Dth/Bill Payments Table ends-->
                 
-                @elseif($serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.MONEY_TRANSFER') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.AEPS')  || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.Mini_Statement')  || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.UPI_TRANSFER'))
+                @elseif($serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.MONEY_TRANSFER') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.AEPS')  || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.Mini_Statement')  || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.UPI_TRANSFER') || $serviceAlias == Config::get('constants.SERVICE_TYPE_ALIAS.BANK_TRANSFER'))
                 <!-- Money Transfer/AEPS Table starts-->
                 <div class="table-responsive" id="pack-comm-dtls-div-2">
                     <table id="pack-comm-dtls-table-2" class="table table-striped table-sm border is-data-table-pkcm">

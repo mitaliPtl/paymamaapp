@@ -62,7 +62,59 @@
                     </table>
                 @endif
                 <br>
+                <script>
+                    function CopyToClipboard(containerid) {
+                      if (document.selection) {
+                        var range = document.body.createTextRange();
+                        range.moveToElementText(document.getElementById(containerid));
+                        range.select().createTextRange();
+                        document.execCommand("copy");
+                      } else if (window.getSelection) {
+                        var range = document.createRange();
+                        range.selectNode(document.getElementById(containerid));
+                        window.getSelection().addRange(range);
+                        document.execCommand("copy");
+                        alert("Text has been copied, now paste in the text-area")
+                      }
+                    }
+                </script>
+                <h4 class="card-title">Bank Accounts</h4>
+                <div class="row">
+                @foreach($bankAccounts as $index => $account)
+                
+                <div class="col-lg-6 col-md-6" id="">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger">
+                        <h4 class="mb-0 text-white">{{ $account->bank_name }}</h4></div>
+                    <div class="card-body">
+                        <div class="row">
+                        <div class="col-lg-4 col-md-6">
+                        <img src="{{ $account->bank_icon }}" class="card-img-top img-responsive"/>
+                        </div>
+                        <div class="col-lg-8 col-md-6">
+                        <h3 class="card-title">Name: {{ $account->name }}</h3>
+                        <h3 class="card-title">AccountNo.:{{ $account->account_no }}</h3>
+                        <p class="card-text">IFSC:{{ $account->ifsc_code }}</p>
+                        <p class="card-text">MODE: {{ $account->mode }}</p>
+                        <p class="card-text">Address: {{ $account->address }}</p>
+                         @if( Auth::user()->roleId == Config::get('constants.ADMIN'))
+                         <button id="form-file-up-btn" class="btn btn-sm btn-warning upload-btn" data-id="{{ $account->id }}" title="Upload Logo" value="{{ $account->id }}">Upload</button>
+                         <button class="btn btn-sm btn-primary edit-btn" title="Edit" value="{{ $account->id }}">Edit</button>
+                         <button class="btn btn-danger" class="btn btn-sm btn-danger delete-btn" data-id="{{ $account->id }}" title="Delete">Delete</button>
+                         @endif
+                         
+                        <button onclick="CopyToClipboard('copy_{{ $index+1 }}');" class="btn btn-inverse">Copy Details</button>
+                      <div id="copy_{{ $index+1 }}" style="display: none;">Bank Name:{{ $account->bank_name }}, Name:{{ $account->name }}, Account No:{{ $account->account_no }} Mode:{{ $account->ifsc_code }} Address: {{ $account->address }}</div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                @endforeach
+                </div>  
+                                  
                     <!-- <table id="bank-ac-table" class="table table-striped table-sm border is-data-table"> -->
+                    <!--
                     <table id="bank-ac-table" class="table table-striped table-bordered table-sm border is-data-table">
 
                         <thead>
@@ -129,7 +181,7 @@
                                 @endif
                             </tr>
                         </tfoot>
-                    </table>
+                    </table> -->
                 </div>
             </div>
         </div>

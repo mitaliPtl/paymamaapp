@@ -11,6 +11,7 @@ class TransferCreditReport extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        "order_id",
         "reference_id",
         // "payment_type",
         "transfer_by_id",

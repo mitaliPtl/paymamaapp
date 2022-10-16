@@ -9,10 +9,15 @@
 <link rel="stylesheet" type="text/css" href="{{ asset('template_assets\other\css\flatpickr.min.css') }}">
 <link rel="stylesheet" href="{{ asset('dist\reports\css\reports.css') }}">
 <style>
-    th {
-        text-transform: uppercase;
-    }
-</style>
+  
+                                 td{
+                                      border:1px solid #7f7f7f14 !important;
+                                  }
+                                  th{
+                                      border:1px solid #7f7f7f14 !important;
+                                  }
+                                </style>
+
 <!-- <section> -->
 <div class="page-content container-fluid">
     <!-- Complaint Reports table starts -->
@@ -20,7 +25,7 @@
         <div class="col-12">
             <div class="material-card card">
                 <div class="card-body">
-                    <h4 class="card-title">{{ $pageName }} </h4>
+                    <h4 class="card-title" style="font-weight:bold;color:#BE1D2C;">{{ $pageName }} </h4>
                     <div class="row">
                         <div class="col-11">
                             <div class="collapse show" id="filterBox">
@@ -32,12 +37,12 @@
                                                 <input type="text" id="from_date" name="from_date" class="form-control flat-picker" value="{{ $request->from_date }}" placeholder="From Date">
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-2" style="margin-left:-20px">
                                             <div class="form-group">
                                                 <input type="text" id="to_date" name="to_date" class="form-control flat-picker" value="{{ $request->to_date }}" placeholder="To Date">
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-2" style="margin-left:-20px">
                                             <div class="form-group">
                                                 <button type="submit" class="btn btn-outline-primary btn-lg success-grad" style="height: calc(2.1rem + .75rem + 2px);"><i class="fa fa-filter"></i> Filter</button>
                                             </div>
