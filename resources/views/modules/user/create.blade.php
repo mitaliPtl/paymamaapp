@@ -617,7 +617,7 @@
                                           @endif
                                         </td>
                                         <td>
-                                           <input data-id="{{$userById->userId}}" @if( Auth::user()->roleId == 2 ) disabled @endif data-service_id="{{$service_value->service_id}}" class="toggle-class" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="ON" data-off="OFF"  @if($array[0]['status']==1) checked  @else @endif>
+                                           <input data-id="{{$userById->userId}}" @if( Auth::user()->roleId == 2 ) disabled @endif data-service_id="{{$service_value->service_id}}" class="toggle-class" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="ON" data-off="OFF"  @if(isset($array) && array_key_exists(0, $array) && $array[0]['status']==1) checked  @else @endif>
                                         </td>
                                     </tr>
                                     @endif
@@ -663,7 +663,7 @@
                                         </td>
                                         <td>
                                             
-                                    <input data-id="{{$userById->userId}}" @if( Auth::user()->roleId == 2 ) disabled @endif data-service_id="{{$service_value->service_id}}" class="toggle-class" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="ON" data-off="OFF" @if($array[0]['status']==1) checked  @else @endif>
+                                    <input data-id="{{$userById->userId}}" @if( Auth::user()->roleId == 2 ) disabled @endif data-service_id="{{$service_value->service_id}}" class="toggle-class" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="ON" data-off="OFF" @if(isset($array) && array_key_exists(0, $array) && $array[0]['status']==1) checked  @else @endif>
                      
                                         </td>
                                     </tr>
@@ -871,7 +871,7 @@
                                     <td>VIRTUAL COLLECT</td>
                                     <td>0%</td>
                                      <td>
-                                            @if($array[0]['status']==1)
+                                            @if(isset($array) && array_key_exists(0, $array) && $array[0]['status']==1)
                                                 
                                             <input checked id="status-btn_" class="status-btn" type="checkbox"
                                              data-id="{{ $userById->userId }}" data-on="Active" data-off="Inactive" data-onstyle="success"
