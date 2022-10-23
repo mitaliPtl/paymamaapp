@@ -8,6 +8,8 @@ use Config;
 use App\PaymentGateWaySetting;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\User;
+use App\Role;
 
 class PaymentGatewaySettingsController extends Controller
 {
@@ -161,5 +163,19 @@ class PaymentGatewaySettingsController extends Controller
             }
         }
         return $result;
+    }
+
+    /**
+     * 
+     */
+    public function pgMemberList()
+    {
+        $userList = User::with(['ekyc', 'parentuser'])->where('isDeleted', Config::get('constants.NOT-DELETED'))
+            ->where('userId', '!=', '1')
+            ->where('roleId', Role::getIdFromAlias(Config::get('constants.ROLE_ALIAS.RETAILER')))
+            ->orderBy('createdDtm', 'DESC')
+            ->orderBy('updatedDtm', 'DESC')
+            ->get();
+        return view('modules.settings.pg_member_list', compact('userList'));
     }
 }

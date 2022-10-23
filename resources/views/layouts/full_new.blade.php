@@ -1271,24 +1271,55 @@
                                     </ul>
                                 </li>
 
+
                                 <li class="sidebar-item">
                                     <a class="has-arrow sidebar-link" href="javascript:void(0)" aria-expanded="false">
                                         <i class="mdi mdi-email-open-outline"></i>
-                                        <span class="hide-menu" style="">PG Management</span>
+                                        <span class="hide-menu" style="">Payment Gateway</span>
                                     </a>
                                     <ul aria-expanded="false" class="collapse second-level">
 
                                         <li class="sidebar-item">
-                                            <a href="{{ route('charges_setting') }}" class="sidebar-link" aria-expanded="false">
+                                            <a href="{{ route('pg_member_list') }}" class="sidebar-link" aria-expanded="false">
                                                 <i class=""></i>
-                                                <span class="hide-menu" style="">PG Charge Set</span>
+                                                <span class="hide-menu" style="">Member List</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('pg_shift') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">PG Shift</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('payout_shift') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">Payout Shift</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('pg_margin_structure') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">PG Margin Structure</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('payout_margin_structure') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">Payout Margin Structure</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('pg_beneficiary_table') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">PG Beneficiary Table</span>
                                             </a>
                                         </li>
 
 
+
                                     </ul>
                                 </li>
-
 
 
 
@@ -2122,21 +2153,51 @@
                                 <li class="sidebar-item">
                                     <a class="has-arrow sidebar-link" href="javascript:void(0)" aria-expanded="false">
                                         <i class="mdi mdi-email-open-outline"></i>
-                                        <span class="hide-menu" style="">PG Management</span>
+                                        <span class="hide-menu" style="">#</span>
                                     </a>
                                     <ul aria-expanded="false" class="collapse second-level">
 
                                         <li class="sidebar-item">
-                                            <a href="{{ route('charges_setting') }}" class="sidebar-link" aria-expanded="false">
+                                            <a href="{{ route('pg_member_list') }}" class="sidebar-link" aria-expanded="false">
                                                 <i class=""></i>
-                                                <span class="hide-menu" style="">PG Charge Set</span>
+                                                <span class="hide-menu" style="">Member List</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('pg_shift') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">PG Shift</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('payout_shift') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">Payout Shift</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('pg_margin_structure') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">PG Margin Structure</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('payout_margin_structure') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">Payout Margin Structure</span>
+                                            </a>
+                                        </li>
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('pg_beneficiary_table') }}" class="sidebar-link" aria-expanded="false">
+                                                <i class=""></i>
+                                                <span class="hide-menu" style="">PG Beneficiary Table</span>
                                             </a>
                                         </li>
 
 
+
                                     </ul>
                                 </li>
-
 
 
 

@@ -331,6 +331,15 @@ Route::get('generates', function (){
     Route::post('delete_verification_user', 'User\UserController@deleteVerificationUser')->name('delete_verification_user');
     Route::get('manualverify/{id}', 'User\UserController@manual_verification')->name('manualverify');
         //payment
+
+        /* START - PAYMENT GATEWAY MENU ROUTES */
+        Route::get('pg_member_list', 'Settings\PaymentGatewaySettingsController@pgMemberList')->name('pg_member_list');
+        Route::get('pg_shift', 'Settings\PaymentGatewaySettingsController@index')->name('pg_shift');
+        Route::get('payout_shift', 'Settings\PaymentGatewaySettingsController@index')->name('payout_shift');
+        Route::get('pg_margin_structure', 'Settings\PaymentGatewaySettingsController@index')->name('pg_margin_structure');
+        Route::get('payout_margin_structure', 'Settings\PaymentGatewaySettingsController@index')->name('payout_margin_structure');
+        Route::get('pg_beneficiary_table', 'Settings\PaymentGatewaySettingsController@index')->name('pg_beneficiary_table');
+        /* END - PAYMENT GATEWAY MENU ROUTES */
     });
     // Admin route ends
 
